@@ -11,7 +11,7 @@ typedef struct node{
 Node* createNode(int value);
 
 Node* insertNode(Node* pRoot, int value);
-bool deleteNode(Node** pRoot, int value);
+Node* deleteNode(Node* pRoot, int value);
 bool findNode(Node* root, int value);
 
 void indent(int tabCount);
@@ -25,15 +25,15 @@ int main(){
     root = insertNode(root, 8);
     root = insertNode(root, 4);
     root = insertNode(root, 1);
-    // root = insertNode(root, 10);
-    // root = insertNode(root, 6);
+    root = insertNode(root, 10);
+    root = insertNode(root, 6);
 
     printTree(root, 0);
     printf("\n");
 
-    // root = deleteNode(root, 8);
+    root = deleteNode(root, 5);
 
-    // printTree(root, 0);
+    printTree(root, 0);
 
     // int numToFind = 9;
     // printf("found %d = %s\n", numToFind, findNode(root, numToFind) ? "true" : "false");
@@ -76,57 +76,63 @@ Node* insertNode(Node* pRoot, int value){
     return pRoot;
 }
 
-bool deleteNode(Node** pRoot, int value){
+Node* deleteNode(Node* pRoot, int value){
     // value not found
-    if((*pRoot) == NULL){
-        return false;
+    if(pRoot == NULL){
+        return pRoot;
     }
 
     // value found
-    if((*pRoot)->value == value){
+    if(pRoot->value == value){
 
         // no child
-        if((*pRoot)->left == NULL && (*pRoot)->right == NULL){
-            (*pRoot) = NULL;
-            return true;
+        if(pRoot->left == NULL && pRoot->right == NULL){
+            pRoot = NULL;
+            return pRoot;
         }
 
         // has child
-        if((*pRoot)->left != NULL){ // left
-            Node* swapNode = (*pRoot);
+        if(pRoot->left != NULL){ // left
+            Node* swapNode = pRoot;
             
             // go LRRR...
-            pRoot = &((*pRoot)->left);
-            while((*pRoot)->right != NULL){
-                pRoot = &((*pRoot)->right);
+            pRoot = pRoot->left;
+            while(pRoot->right != NULL){
+                pRoot = pRoot->right;
             }
 
             // swap value, repeat on new value
-            swapNode->value = (*pRoot)->value;
-            return deleteNode(&(*pRoot), (*pRoot)->value);
+            int tempVal = pRoot->value;
+            swapNode = deleteNode(swapNode, tempVal);
+            swapNode->value = tempVal;
+            return swapNode;
         }
         else{ // right
-            Node* swapNode = (*pRoot);
+            Node* swapNode = pRoot;
 
             // go RLLL...
-            pRoot = &((*pRoot)->right);
-            while((*pRoot)->left != NULL){
-                pRoot = &((*pRoot)->left);
+            pRoot = pRoot->right;
+            while(pRoot->left != NULL){
+                pRoot = pRoot->left;
             }
 
             // swap value, repeat on new value
-            swapNode->value = (*pRoot)->value;
-            return deleteNode(&(*pRoot), (*pRoot)->value);
+            int tempVal = pRoot->value;
+            swapNode = deleteNode(swapNode, tempVal);
+            swapNode->value = tempVal;
+            return swapNode;
         }
     }
 
     // search deeper
-    if(value < (*pRoot)->value){
-        return deleteNode(&((*pRoot)->left), value);
+    if(value < pRoot->value){
+        pRoot->left = deleteNode(pRoot->left, value);
     }
     else{
-        return deleteNode(&((*pRoot)->right), value);
+        pRoot->right = deleteNode(pRoot->right, value);
     }
+
+    return pRoot;
 }
 
 bool findNode(Node* root, int value){
