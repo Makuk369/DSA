@@ -10,7 +10,7 @@ typedef struct node{
 
 Node* createNode(int value);
 
-bool insertNode(Node** pRoot, int value);
+Node* insertNode(Node* pRoot, int value);
 bool deleteNode(Node** pRoot, int value);
 bool findNode(Node* root, int value);
 
@@ -20,20 +20,20 @@ void printTree(Node* root, int level);
 int main(){
     Node* root = NULL;
 
-    insertNode(&root, 5);
-    insertNode(&root, 3);
-    insertNode(&root, 8);
-    insertNode(&root, 4);
-    insertNode(&root, 1);
-    // insertNode(&root, 10);
-    // insertNode(&root, 6);
+    root = insertNode(root, 5);
+    root = insertNode(root, 3);
+    root = insertNode(root, 8);
+    root = insertNode(root, 4);
+    root = insertNode(root, 1);
+    // root = insertNode(root, 10);
+    // root = insertNode(root, 6);
 
     printTree(root, 0);
     printf("\n");
 
-    deleteNode(&root, 8);
+    // root = deleteNode(root, 8);
 
-    printTree(root, 0);
+    // printTree(root, 0);
 
     // int numToFind = 9;
     // printf("found %d = %s\n", numToFind, findNode(root, numToFind) ? "true" : "false");
@@ -51,26 +51,29 @@ Node* createNode(int value){
     return result;
 }
 
-bool insertNode(Node** pRoot, int value){
+Node* insertNode(Node* pRoot, int value){
     // add node
-    if((*pRoot) == NULL){
-        (*pRoot) = createNode(value);
-        return true;
+    if(pRoot == NULL){
+        pRoot = createNode(value);
+        return pRoot;
     }
 
     // duplicate value == invalid
-    if(value == (*pRoot)->value){
+    if(value == pRoot->value){
         printf("!!! error: No duplicate values allowed !!!\n");
-        return false;
+        return pRoot;
     }
 
     // go deeper
-    if(value < (*pRoot)->value){
-        return insertNode(&((*pRoot)->left), value);
+    if(value < pRoot->value){
+        pRoot->left = insertNode((pRoot->left), value);
     }
     else{
-        return insertNode(&((*pRoot)->right), value);
+        pRoot->right = insertNode((pRoot->right), value);
     }
+
+    // return without a change
+    return pRoot;
 }
 
 bool deleteNode(Node** pRoot, int value){
