@@ -15,31 +15,34 @@ typedef struct node {
 Node* createNode(int value);
 Node* insertNode(Node* root, int value);
 
+Node* rotateLeft(Node* root);
+
 void indent(int tabCount);
 void printTree(Node* root, int level);
 
 int main()
 {
-    Node* root = createNode(5);
+    Node* treeRoot = createNode(10);
 
-    root = insertNode(root, 3);
-    root = insertNode(root, 8);
-    root = insertNode(root, 4);
-    root = insertNode(root, 1);
-    // root = insertNode(root, 10);
-    // root = insertNode(root, 6);
+    treeRoot = insertNode(treeRoot, 5);
+    treeRoot = insertNode(treeRoot, 1);
+    treeRoot = insertNode(treeRoot, 7);
+    treeRoot = insertNode(treeRoot, 6);
+    treeRoot = insertNode(treeRoot, 8);
+    // treeRoot = insertNode(treeRoot, 6);
 
-    printTree(root, 0);
+    printTree(treeRoot, 0);
     printf("\n");
 
-    // root = deleteNode(root, 5);
+    treeRoot->left = rotateLeft(treeRoot->left);
+    // treeRoot = deleteNode(treeRoot, 5);
 
-    // printTree(root, 0);
+    printTree(treeRoot, 0);
 
     // int numToFind = 9;
-    // printf("found %d = %s\n", numToFind, findNode(root, numToFind) ? "true" : "false");
+    // printf("found %d = %s\n", numToFind, findNode(treeRoot, numToFind) ? "true" : "false");
 
-    free(root);
+    free(treeRoot);
     return 0;
 }
 
@@ -80,6 +83,33 @@ Node* insertNode(Node* root, int value){
 
     // return without a change
     return root;
+}
+
+Node* rotateLeft(Node* root){
+    Node* rotNode = root->right;
+
+    root->right = rotNode->left;
+
+    if(rotNode->left != NULL){
+        rotNode->left->parent = root;
+    }
+
+    rotNode->parent = root->parent; // moze bit aj null
+
+    if(root->parent != NULL){
+        if((root->parent->left != NULL) && (root->parent->left->value == root->value)){
+            root->parent->left = rotNode;
+        }
+        else if((root->parent->right != NULL) && (root->parent->right->value == root->value)){
+            root->parent->right = rotNode;
+        }
+    }
+
+    rotNode->left = root;
+
+    root->parent = rotNode;
+
+    return rotNode;
 }
 
 void indent(int tabCount){
