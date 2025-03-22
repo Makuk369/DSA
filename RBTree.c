@@ -15,6 +15,8 @@ typedef struct node {
 Node* createNode(int value);
 Node* insertNode(Node* root, int value);
 
+Node* insertFix(Node* root);
+
 Node* rotateLeft(Node* root);
 Node* rotateRight(Node* root);
 
@@ -23,7 +25,8 @@ void printTree(Node* root, int level);
 
 int main()
 {
-    Node* treeRoot = createNode(10);
+    Node* treeRoot = NULL;
+    treeRoot = insertNode(treeRoot, 10);
 
     // lava strana
     treeRoot = insertNode(treeRoot, 5);
@@ -34,19 +37,19 @@ int main()
 
     // prava strana
     treeRoot = insertNode(treeRoot, 20);
-    treeRoot = insertNode(treeRoot, 25);
-    treeRoot = insertNode(treeRoot, 15);
-    treeRoot = insertNode(treeRoot, 12);
-    treeRoot = insertNode(treeRoot, 17);
+    // treeRoot = insertNode(treeRoot, 25);
+    // treeRoot = insertNode(treeRoot, 15);
+    // treeRoot = insertNode(treeRoot, 12);
+    // treeRoot = insertNode(treeRoot, 17);
 
     printTree(treeRoot, 0);
     printf("\n");
 
     // treeRoot->left = rotateLeft(treeRoot->left);
-    treeRoot->right = rotateRight(treeRoot->right);
+    // treeRoot = rotateRight(treeRoot);
     // treeRoot = deleteNode(treeRoot, 5);
 
-    printTree(treeRoot, 0);
+    // printTree(treeRoot, 0);
 
     // int numToFind = 9;
     // printf("found %d = %s\n", numToFind, findNode(treeRoot, numToFind) ? "true" : "false");
@@ -55,6 +58,7 @@ int main()
     return 0;
 }
 
+// returns a new node, with black color
 Node* createNode(int value){
     Node* result = (Node*)malloc(sizeof(Node));
     if(result != NULL){
@@ -62,7 +66,7 @@ Node* createNode(int value){
         result->left = NULL;
         result->right = NULL;
         result->value = value;
-        result->color = RED;
+        result->color = BLACK;
     }
     return result;
 }
@@ -84,13 +88,27 @@ Node* insertNode(Node* root, int value){
     if(value < root->value){
         root->left = insertNode((root->left), value);
         root->left->parent = root;
+        root->left = insertFix(root->left);
     }
     else{
         root->right = insertNode((root->right), value);
         root->right->parent = root;
+        root->right = insertFix(root->right);
     }
 
     // return without a change
+    return root;
+}
+
+Node* insertFix(Node* root){
+    // CASE 1 = root has a black parent
+    if(root->parent->color == BLACK){
+        root->color = RED;
+        // printf("%d - case 1\n", root->value);
+        return root;
+    }
+
+    // CASE 5 = no fix needed
     return root;
 }
 
@@ -163,7 +181,7 @@ void printTree(Node* root, int level){
     }
 
     indent(level);
-    printf("value = %d\n", root->value);
+    printf("value = %d - %s\n", root->value, (root->color == RED) ? "RED" : "BLACK");
 
     indent(level);
     printf("left\n");
