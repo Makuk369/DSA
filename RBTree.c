@@ -16,6 +16,7 @@ Node* createNode(int value);
 Node* insertNode(Node* root, int value);
 
 Node* rotateLeft(Node* root);
+Node* rotateRight(Node* root);
 
 void indent(int tabCount);
 void printTree(Node* root, int level);
@@ -24,17 +25,25 @@ int main()
 {
     Node* treeRoot = createNode(10);
 
+    // lava strana
     treeRoot = insertNode(treeRoot, 5);
-    treeRoot = insertNode(treeRoot, 1);
-    treeRoot = insertNode(treeRoot, 7);
-    treeRoot = insertNode(treeRoot, 6);
-    treeRoot = insertNode(treeRoot, 8);
+    // treeRoot = insertNode(treeRoot, 1);
+    // treeRoot = insertNode(treeRoot, 7);
     // treeRoot = insertNode(treeRoot, 6);
+    // treeRoot = insertNode(treeRoot, 8);
+
+    // prava strana
+    treeRoot = insertNode(treeRoot, 20);
+    treeRoot = insertNode(treeRoot, 25);
+    treeRoot = insertNode(treeRoot, 15);
+    treeRoot = insertNode(treeRoot, 12);
+    treeRoot = insertNode(treeRoot, 17);
 
     printTree(treeRoot, 0);
     printf("\n");
 
-    treeRoot->left = rotateLeft(treeRoot->left);
+    // treeRoot->left = rotateLeft(treeRoot->left);
+    treeRoot->right = rotateRight(treeRoot->right);
     // treeRoot = deleteNode(treeRoot, 5);
 
     printTree(treeRoot, 0);
@@ -106,6 +115,33 @@ Node* rotateLeft(Node* root){
     }
 
     rotNode->left = root;
+
+    root->parent = rotNode;
+
+    return rotNode;
+}
+
+Node* rotateRight(Node* root){
+    Node* rotNode = root->left;
+
+    root->left = rotNode->right;
+
+    if(rotNode->right != NULL){
+        rotNode->right->parent = root;
+    }
+
+    rotNode->parent = root->parent; // moze bit aj null
+
+    if(root->parent != NULL){
+        if((root->parent->left != NULL) && (root->parent->left->value == root->value)){
+            root->parent->left = rotNode;
+        }
+        else if((root->parent->right != NULL) && (root->parent->right->value == root->value)){
+            root->parent->right = rotNode;
+        }
+    }
+
+    rotNode->right = root;
 
     root->parent = rotNode;
 
