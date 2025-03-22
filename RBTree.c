@@ -15,7 +15,7 @@ typedef struct node {
 Node* createNode(int value);
 Node* insertNode(Node* root, int value);
 
-Node* insertFix(Node* root);
+Node* insertFixup(Node* root);
 
 Node* rotateLeft(Node* root);
 Node* rotateRight(Node* root);
@@ -28,15 +28,13 @@ int main()
     Node* treeRoot = NULL;
     treeRoot = insertNode(treeRoot, 10);
 
-    // lava strana
     treeRoot = insertNode(treeRoot, 5);
-    // treeRoot = insertNode(treeRoot, 1);
+    treeRoot = insertNode(treeRoot, 20);
+    treeRoot = insertNode(treeRoot, 1);
     // treeRoot = insertNode(treeRoot, 7);
     // treeRoot = insertNode(treeRoot, 6);
     // treeRoot = insertNode(treeRoot, 8);
 
-    // prava strana
-    treeRoot = insertNode(treeRoot, 20);
     // treeRoot = insertNode(treeRoot, 25);
     // treeRoot = insertNode(treeRoot, 15);
     // treeRoot = insertNode(treeRoot, 12);
@@ -86,29 +84,67 @@ Node* insertNode(Node* root, int value){
 
     // go deeper
     if(value < root->value){
-        root->left = insertNode((root->left), value);
+        root->left = insertNode(root->left, value);
         root->left->parent = root;
-        root->left = insertFix(root->left);
+        root->left = insertFixup(root->left);
     }
     else{
-        root->right = insertNode((root->right), value);
+        root->right = insertNode(root->right, value);
         root->right->parent = root;
-        root->right = insertFix(root->right);
+        root->right = insertFixup(root->right);
     }
 
     // return without a change
     return root;
 }
 
-Node* insertFix(Node* root){
+Node* insertFixup(Node* root){
+    // root will allways have parent
     // CASE 1 = root has a black parent
     if(root->parent->color == BLACK){
         root->color = RED;
-        // printf("%d - case 1\n", root->value);
+        printf("%d - case 1\n", root->value);
         return root;
     }
 
-    // CASE 5 = no fix needed
+    // uncle = second child of grandparent
+    // has grandparent
+    if(root->parent->parent != NULL){
+        Node* grandParent = root->parent->parent;
+        
+        // has uncle
+        if(grandParent->left != NULL && grandParent->right != NULL)
+        {
+            Node* uncle = NULL;
+            // left is parent, then right is uncle
+            if(grandParent->left->value == root->parent->value){
+                uncle = grandParent->right;
+            }
+            else{
+                uncle = grandParent->left;
+            }
+
+            // CASE 2 = root has red parent and red uncle
+            if((root->parent->color == RED) && (uncle->color == RED)){
+                root->parent->color = BLACK;
+                uncle->color = BLACK;
+                grandParent->color = RED;
+                root->color = RED;
+                printf("%d - case 2\n", root->value);
+                return root;
+            }
+        }
+    }
+    else{ // parent is root
+        // CASE 5 = treeRoot is red 
+        if(root->parent->color == RED){
+            root->parent->color = BLACK;
+            printf("%d - case 5\n", root->value);
+            return root;
+        }
+    }
+
+    // CASE 6 = no fix needed
     return root;
 }
 
