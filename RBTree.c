@@ -43,9 +43,9 @@ int main()
     treeRoot = insertNode(treeRoot, 5);
     printTree(treeRoot, 0);
 
-    printf("\n ---------- 20 ---------- \n");
-    treeRoot = insertNode(treeRoot, 20);
-    printTree(treeRoot, 0);
+    // printf("\n ---------- 20 ---------- \n");
+    // treeRoot = insertNode(treeRoot, 20);
+    // printTree(treeRoot, 0);
 
     printf("\n ---------- 1 ---------- \n");
     treeRoot = insertNode(treeRoot, 1);
@@ -103,9 +103,12 @@ Node* createNode(int value){
 }
 
 Node* insertNode(Node* root, int value){
+    static Node* newNode = NULL;
+
     // add node
     if(root == NULL){
         root = createNode(value);
+        newNode = root;
         return root;
     }
 
@@ -120,20 +123,33 @@ Node* insertNode(Node* root, int value){
         root->left = insertNode(root->left, value);
         root->left->parent = root;
 
-        if(root->left->left == NULL){
-            root->left = insertFixup(root->left);
-        }
+        // if(root->left->left == NULL){
+        //     root->left = insertFixup(root->left);
+        // }
     }
     else{
         root->right = insertNode(root->right, value);
         root->right->parent = root;
 
-        if(root->right->right == NULL){
-            root->right = insertFixup(root->right);
+        // if(root->right->right == NULL){
+        //     root->right = insertFixup(root->right);
+        // }
+    }
+
+    // only call on treeRoot
+    if(root->parent == NULL){
+        newNode = insertFixup(newNode);
+
+        while (newNode->parent != NULL)
+        {
+            // printf("newnode(%d) = %p newnode.parent = %p\n", newNode->value, newNode, newNode->parent);
+            newNode = newNode->parent;
         }
+        return newNode;
     }
 
     // return without a change
+    // printf("insert root = %d (%p) -left> %p\n", root->value, root, root->left);
     return root;
 }
 
@@ -160,70 +176,69 @@ Node* insertFixup(Node* root){
     // has grandparent
     if(root->parent->parent != NULL){
         Node* grandParent = root->parent->parent;
-        
-        // has uncle
-        if(grandParent->left != NULL && grandParent->right != NULL)
-        {
-            Node* uncle = NULL;
-            UncleRelation uncleRel = AWAY_LEFT;
+        Node* uncle = NULL;
+        UncleRelation uncleRel = AWAY_LEFT;
 
-            // left is parent, then right is uncle
-            if(grandParent->left->value == root->parent->value){
-                uncle = grandParent->right;
+        // left is parent, then right is uncle
+        if(grandParent->left->value == root->parent->value){
+            uncle = grandParent->right; // can be NULL
 
-                if((root->parent->left != NULL) && (root->value == root->parent->left->value)){
-                    uncleRel = AWAY_LEFT;
-                }
-                else{
-                    uncleRel = TOWARDS_LEFT;
-                }
+            if((root->parent->left != NULL) && (root->value == root->parent->left->value)){
+                uncleRel = AWAY_LEFT;
             }
             else{
-                uncle = grandParent->left;
-
-                if((root->parent->right != NULL) && (root->value == root->parent->right->value)){
-                    uncleRel = AWAY_RIGHT;
-                }
-                else{
-                    uncleRel = TOWARDS_RIGHT;
-                }
+                uncleRel = TOWARDS_LEFT;
             }
+        }
+        else{
+            uncle = grandParent->left; // can be NULL
 
-            // CASE 2 = root has red parent and red uncle
-            if((root->parent->color == RED) && (uncle->color == RED)){
-                root->parent->color = BLACK;
-                uncle->color = BLACK;
-                grandParent->color = RED;
-                root->color = RED;
-                printf("%d - case 2\n", root->value);
-                grandParent = insertFixup(grandParent);
-                return root;
+            if((root->parent->right != NULL) && (root->value == root->parent->right->value)){
+                uncleRel = AWAY_RIGHT;
             }
+            else{
+                uncleRel = TOWARDS_RIGHT;
+            }
+        }
 
-            // CASE 3 = root has red parent and black uncle
-            if((root->parent->color == RED) && (uncle->color == BLACK)){
-                switch (uncleRel){
-                    case AWAY_LEFT:
-                        grandParent = rotateRight(grandParent); // grandparent je teraz parent
-                        root->color = RED;
-                        grandParent->color = BLACK;
-                        grandParent->right->color = RED;
-                        printf("%d - case 3\n", root->value);
-                        return root;
-                        break;
-                        
-                    case TOWARDS_LEFT:
-                        break;
+        // CASE 2 = root has red parent and red uncle
+        if((root->parent->color == RED) && ((uncle != NULL) && (uncle->color == RED))){ // NULL uncle == black uncle
+            root->parent->color = BLACK;
+            uncle->color = BLACK;
+            grandParent->color = RED;
+            root->color = RED;
+            printf("%d - case 2\n", root->value);
+            grandParent = insertFixup(grandParent);
+            return root;
+        }
 
-                    case AWAY_RIGHT:
-                        break;
+        // CASE 3 = root has red parent and black uncle
+        if((root->parent->color == RED) && ((uncle == NULL) || (uncle->color == BLACK))){ // NULL uncle == black uncle
+            switch (uncleRel){
+                case AWAY_LEFT:
+                    // printf("fixup = %d -left> %p\n", root->parent->parent->value, root->parent->parent->left);
+                    root->parent = rotateRight(root->parent->parent); // grandparent je teraz parent
+                    // printf("fixup = %d -left> %p\n", root->parent->right->value, root->parent->right->left);
+                    // printf("fixup x(%d) = %p x.parent = %p\n", root->parent->value, root->parent, root->parent->parent);
 
-                    case TOWARDS_RIGHT:
-                        break;
+                    root->color = RED;
+                    root->parent->color = BLACK;
+                    root->parent->right->color = RED;
+                    printf("%d - case 3\n", root->value);
+                    return root;
+                    break;
                     
-                    default:
-                        break;
-                }
+                case TOWARDS_LEFT:
+                    break;
+
+                case AWAY_RIGHT:
+                    break;
+
+                case TOWARDS_RIGHT:
+                    break;
+                
+                default:
+                    break;
             }
         }
     }
