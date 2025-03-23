@@ -34,7 +34,10 @@ void printTree(Node* root, int level);
 int main()
 {
     Node* treeRoot = NULL;
+    
+    printf("\n ---------- 10 ---------- \n");
     treeRoot = insertNode(treeRoot, 10);
+    printTree(treeRoot, 0);
 
     printf("\n ---------- 5 ---------- \n");
     treeRoot = insertNode(treeRoot, 5);
@@ -48,9 +51,9 @@ int main()
     treeRoot = insertNode(treeRoot, 1);
     printTree(treeRoot, 0);
 
-    printf("\n ---------- 7 ---------- \n");
-    treeRoot = insertNode(treeRoot, 7);
-    printTree(treeRoot, 0);
+    // printf("\n ---------- 7 ---------- \n");
+    // treeRoot = insertNode(treeRoot, 7);
+    // printTree(treeRoot, 0);
 
     // printTree(treeRoot, 0);
     // printf("\n ------------------- \n");
@@ -116,12 +119,18 @@ Node* insertNode(Node* root, int value){
     if(value < root->value){
         root->left = insertNode(root->left, value);
         root->left->parent = root;
-        root->left = insertFixup(root->left);
+
+        if(root->left->left == NULL){
+            root->left = insertFixup(root->left);
+        }
     }
     else{
         root->right = insertNode(root->right, value);
         root->right->parent = root;
-        root->right = insertFixup(root->right);
+
+        if(root->right->right == NULL){
+            root->right = insertFixup(root->right);
+        }
     }
 
     // return without a change
@@ -129,9 +138,19 @@ Node* insertNode(Node* root, int value){
 }
 
 Node* insertFixup(Node* root){
-    // root will allways have parent
+    // CASE 0 = root is treeRoot and its red
+    if(root->parent == NULL){
+        if(root->color == RED){
+            root->color = BLACK;
+            return root;
+        }
+        else{
+            return root;
+        }
+    }
+    
     // CASE 1 = root has a black parent (NOT treeRoot)
-    if(root->parent->color == BLACK && (root->parent->parent != NULL)){
+    if(root->parent->color == BLACK){
         root->color = RED;
         printf("%d - case 1\n", root->value);
         return root;
@@ -177,6 +196,7 @@ Node* insertFixup(Node* root){
                 grandParent->color = RED;
                 root->color = RED;
                 printf("%d - case 2\n", root->value);
+                grandParent = insertFixup(grandParent);
                 return root;
             }
 
