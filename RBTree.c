@@ -4,6 +4,14 @@
 #define RED 1
 #define BLACK 0
 
+// root pos relative to uncle
+typedef enum uncleRelation{
+    AWAY_LEFT,
+    TOWARDS_LEFT,
+    AWAY_RIGHT,
+    TOWARDS_RIGHT
+} UncleRelation;
+
 typedef struct node {
     int value;
     int color; // 1-red, 0-black
@@ -116,12 +124,28 @@ Node* insertFixup(Node* root){
         if(grandParent->left != NULL && grandParent->right != NULL)
         {
             Node* uncle = NULL;
+            UncleRelation uncleRel = AWAY_LEFT;
+
             // left is parent, then right is uncle
             if(grandParent->left->value == root->parent->value){
                 uncle = grandParent->right;
+
+                if((root->parent->left != NULL) && (root->value == root->parent->left->value)){
+                    uncleRel = AWAY_LEFT;
+                }
+                else{
+                    uncleRel = TOWARDS_LEFT;
+                }
             }
             else{
                 uncle = grandParent->left;
+
+                if((root->parent->right != NULL) && (root->value == root->parent->right->value)){
+                    uncleRel = AWAY_RIGHT;
+                }
+                else{
+                    uncleRel = TOWARDS_RIGHT;
+                }
             }
 
             // CASE 2 = root has red parent and red uncle
@@ -133,6 +157,8 @@ Node* insertFixup(Node* root){
                 printf("%d - case 2\n", root->value);
                 return root;
             }
+
+            // CASE 3 = 
         }
     }
     else{ // parent is root
