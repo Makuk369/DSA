@@ -84,6 +84,10 @@ int main()
     treeRoot = insertNode(treeRoot, 20);
     printTree(treeRoot, 0, STRUCTURE);
 
+    printf("\n ---------- DEL 5 ---------- \n");
+    treeRoot = deleteNode(treeRoot, 5);
+    printTree(treeRoot, 0, STRUCTURE);
+
     free(treeRoot);
     return 0;
 }
@@ -143,7 +147,25 @@ Node* insertNode(Node* root, int value){
 }
 
 Node* deleteNode(Node* root, int value){
+    // node found
+    if(value == root->value){
+        // CASE 1 = root does not have children
+        if((root->left == NULL) && (root->right == NULL)){
+            free(root);
+            root = NULL;
+            return root;
+        }
+    }
 
+    // didnt find = go deeper
+    if(value < root->value){
+        root->left = deleteNode(root->left, value);
+    }
+    else{
+        root->right = deleteNode(root->right, value);
+    }
+
+    return root;
 }
 
 Node* treeFixup(Node* root){
