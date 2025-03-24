@@ -47,8 +47,8 @@ int main()
     treeRoot = insertNode(treeRoot, 20);
     printTree(treeRoot, 0);
 
-    printf("\n ---------- 30 ---------- \n");
-    treeRoot = insertNode(treeRoot, 30);
+    printf("\n ---------- 15 ---------- \n");
+    treeRoot = insertNode(treeRoot, 15);
     printTree(treeRoot, 0);
 
     // printf("\n ---------- 7 ---------- \n");
@@ -150,7 +150,7 @@ Node* insertFixup(Node* root){
         }
     }
     
-    // CASE 1 = root has a black parent (NOT treeRoot)
+    // CASE 1 = root has a black parent
     if(root->parent->color == BLACK){
         root->color = RED;
         printf("%d - case 1\n", root->value);
@@ -201,11 +201,7 @@ Node* insertFixup(Node* root){
         if((root->parent->color == RED) && ((uncle == NULL) || (uncle->color == BLACK))){ // NULL uncle == black uncle
             switch (uncleRel){
                 case AWAY_LEFT:
-                    // printf("fixup = %d -left> %p\n", root->parent->parent->value, root->parent->parent->left);
                     root->parent = rotateRight(root->parent->parent); // grandparent je teraz parent
-                    // printf("fixup = %d -left> %p\n", root->parent->right->value, root->parent->right->left);
-                    // printf("fixup x(%d) = %p x.parent = %p\n", root->parent->value, root->parent, root->parent->parent);
-
                     root->color = RED;
                     root->parent->color = BLACK;
                     root->parent->right->color = RED;
@@ -214,13 +210,14 @@ Node* insertFixup(Node* root){
                     break;
                     
                 case TOWARDS_LEFT:
+                    root = rotateLeft(root->parent);
+                    root = rotateRight(root->parent);
+                    root->color = BLACK;
+                    root->right->color = RED;
                     break;
 
                 case AWAY_RIGHT:
                     root->parent = rotateLeft(root->parent->parent); // grandparent je teraz parent
-                    // printf("fixup = %d -left> %p\n", root->parent->right->value, root->parent->right->left);
-                    // printf("fixup x(%d) = %p x.parent = %p\n", root->parent->value, root->parent, root->parent->parent);
-
                     root->color = RED;
                     root->parent->color = BLACK;
                     root->parent->left->color = RED;
@@ -229,6 +226,10 @@ Node* insertFixup(Node* root){
                     break;
 
                 case TOWARDS_RIGHT:
+                    root = rotateRight(root->parent);
+                    root = rotateLeft(root->parent);
+                    root->color = BLACK;
+                    root->left->color = RED;
                     break;
                 
                 default:
