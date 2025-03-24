@@ -84,8 +84,24 @@ int main()
     treeRoot = insertNode(treeRoot, 20);
     printTree(treeRoot, 0, STRUCTURE);
 
-    printf("\n ---------- DEL 5 ---------- \n");
-    treeRoot = deleteNode(treeRoot, 5);
+    printf("\n ---------- 30 ---------- \n");
+    treeRoot = insertNode(treeRoot, 30);
+    printTree(treeRoot, 0, STRUCTURE);
+
+    printf("\n ---------- 1 ---------- \n");
+    treeRoot = insertNode(treeRoot, 1);
+    printTree(treeRoot, 0, STRUCTURE);
+
+    printf("\n ---------- 7 ---------- \n");
+    treeRoot = insertNode(treeRoot, 7);
+    printTree(treeRoot, 0, STRUCTURE);
+
+    printf("\n ---------- 6 ---------- \n");
+    treeRoot = insertNode(treeRoot, 6);
+    printTree(treeRoot, 0, STRUCTURE);
+
+    printf("\n ---------- DEL 10 ---------- \n");
+    treeRoot = deleteNode(treeRoot, 10);
     printTree(treeRoot, 0, STRUCTURE);
 
     free(treeRoot);
@@ -147,6 +163,11 @@ Node* insertNode(Node* root, int value){
 }
 
 Node* deleteNode(Node* root, int value){
+    // value not found
+    if(root == NULL){
+        return root;
+    }
+    
     // node found
     if(value == root->value){
         // CASE 1 = root does not have children
@@ -154,6 +175,38 @@ Node* deleteNode(Node* root, int value){
             free(root);
             root = NULL;
             return root;
+        }
+
+        // CASE 2 = root has left child
+        if(root->left != NULL){
+            Node* swapNode = root;
+            
+            // go LRRR...
+            root = root->left;
+            while(root->right != NULL){
+                root = root->right;
+            }
+
+            // swap value, repeat on new value
+            int tempVal = root->value;
+            swapNode = deleteNode(swapNode, tempVal);
+            swapNode->value = tempVal;
+            return swapNode;
+        }
+        else{
+            Node* swapNode = root;
+
+            // go RLLL...
+            root = root->right;
+            while(root->left != NULL){
+                root = root->left;
+            }
+
+            // swap value, repeat on new value
+            int tempVal = root->value;
+            swapNode = deleteNode(swapNode, tempVal);
+            swapNode->value = tempVal;
+            return swapNode;
         }
     }
 
