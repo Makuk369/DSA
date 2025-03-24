@@ -35,7 +35,8 @@ typedef struct node {
 
 Node* createNode(int value);
 Node* insertNode(Node* root, int value);
-Node* insertFixup(Node* root);
+Node* deleteNode(Node* root, int value);
+Node* treeFixup(Node* root);
 
 bool findNode(Node* root, int value);
 
@@ -48,26 +49,40 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod);
 int main()
 {
     Node* treeRoot = NULL;
-    int inVal = 0;
     
-    unsigned int numsToAdd = 0;
-    scanf("%u", &numsToAdd);
-    for (size_t i = 0; i < numsToAdd; i++)
-    {
-        scanf("%d", &inVal);
-        treeRoot = insertNode(treeRoot, inVal);
-    }
+    // int inVal = 0;
+    // unsigned int numsToAdd = 0;
+    // scanf("%u", &numsToAdd);
+    // for (size_t i = 0; i < numsToAdd; i++)
+    // {
+    //     scanf("%d", &inVal);
+    //     treeRoot = insertNode(treeRoot, inVal);
+    // }
 
-    printTree(treeRoot, 0, INORDER);
-    printf("---------- FINDING: ----------\n");
+    // printTree(treeRoot, 0, INORDER);
+    // printf("---------- FINDING: ----------\n");
 
-    unsigned int numsToFind = 0;
-    scanf("%u", &numsToFind);
-    for (size_t i = 0; i < numsToFind; i++)
-    {
-        scanf("%d", &inVal);
-        printf("%d - %s\n", inVal, findNode(treeRoot, inVal) ? "true" : "false");
-    }
+    // unsigned int numsToFind = 0;
+    // scanf("%u", &numsToFind);
+    // for (size_t i = 0; i < numsToFind; i++)
+    // {
+    //     scanf("%d", &inVal);
+    //     printf("%d - %s\n", inVal, findNode(treeRoot, inVal) ? "true" : "false");
+    // }
+
+
+
+    printf("\n ---------- 10 ---------- \n");
+    treeRoot = insertNode(treeRoot, 10);
+    printTree(treeRoot, 0, STRUCTURE);
+
+    printf("\n ---------- 5 ---------- \n");
+    treeRoot = insertNode(treeRoot, 5);
+    printTree(treeRoot, 0, STRUCTURE);
+
+    printf("\n ---------- 20 ---------- \n");
+    treeRoot = insertNode(treeRoot, 20);
+    printTree(treeRoot, 0, STRUCTURE);
 
     free(treeRoot);
     return 0;
@@ -114,7 +129,7 @@ Node* insertNode(Node* root, int value){
 
     // only call on treeRoot
     if(root->parent == NULL){
-        newNode = insertFixup(newNode);
+        newNode = treeFixup(newNode);
 
         while (root->parent != NULL)
         {
@@ -124,11 +139,14 @@ Node* insertNode(Node* root, int value){
     }
 
     // return without a change
-    // printf("insert root = %d (%p) -left> %p\n", root->value, root, root->left);
     return root;
 }
 
-Node* insertFixup(Node* root){
+Node* deleteNode(Node* root, int value){
+
+}
+
+Node* treeFixup(Node* root){
     // CASE 0 = root is treeRoot and its red
     if(root->parent == NULL){
         if(root->color == RED){
@@ -190,7 +208,7 @@ Node* insertFixup(Node* root){
             #if CASE_PRINT == 1
             printf("%d - case 2\n", root->value);
             #endif
-            grandParent = insertFixup(grandParent);
+            grandParent = treeFixup(grandParent);
             return root;
         }
 
