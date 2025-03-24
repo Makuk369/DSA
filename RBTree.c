@@ -39,39 +39,33 @@ int main()
     treeRoot = insertNode(treeRoot, 10);
     printTree(treeRoot, 0);
 
-    printf("\n ---------- 5 ---------- \n");
-    treeRoot = insertNode(treeRoot, 5);
-    printTree(treeRoot, 0);
-
-    // printf("\n ---------- 20 ---------- \n");
-    // treeRoot = insertNode(treeRoot, 20);
+    // printf("\n ---------- 5 ---------- \n");
+    // treeRoot = insertNode(treeRoot, 5);
     // printTree(treeRoot, 0);
 
-    printf("\n ---------- 1 ---------- \n");
-    treeRoot = insertNode(treeRoot, 1);
+    printf("\n ---------- 20 ---------- \n");
+    treeRoot = insertNode(treeRoot, 20);
+    printTree(treeRoot, 0);
+
+    printf("\n ---------- 30 ---------- \n");
+    treeRoot = insertNode(treeRoot, 30);
     printTree(treeRoot, 0);
 
     // printf("\n ---------- 7 ---------- \n");
     // treeRoot = insertNode(treeRoot, 7);
     // printTree(treeRoot, 0);
 
-    // printTree(treeRoot, 0);
-    // printf("\n ------------------- \n");
-
+    // printf("\n ---------- -5 ---------- \n");
     // treeRoot = insertNode(treeRoot, -5);
-
     // printTree(treeRoot, 0);
-    // printf("\n ------------------- \n");
 
+    // printf("\n ---------- 3 ---------- \n");
     // treeRoot = insertNode(treeRoot, 3);
-
     // printTree(treeRoot, 0);
-    // printf("\n ------------------- \n");
 
+    // printf("\n ---------- -10 ---------- \n");
     // treeRoot = insertNode(treeRoot, -10);
-    // treeRoot = insertNode(treeRoot, 15);
-    // treeRoot = insertNode(treeRoot, 12);
-    // treeRoot = insertNode(treeRoot, 17);
+    // printTree(treeRoot, 0);
 
     // printTree(treeRoot, 0);
     // printf("\n");
@@ -122,30 +116,21 @@ Node* insertNode(Node* root, int value){
     if(value < root->value){
         root->left = insertNode(root->left, value);
         root->left->parent = root;
-
-        // if(root->left->left == NULL){
-        //     root->left = insertFixup(root->left);
-        // }
     }
     else{
         root->right = insertNode(root->right, value);
         root->right->parent = root;
-
-        // if(root->right->right == NULL){
-        //     root->right = insertFixup(root->right);
-        // }
     }
 
     // only call on treeRoot
     if(root->parent == NULL){
         newNode = insertFixup(newNode);
 
-        while (newNode->parent != NULL)
+        while (root->parent != NULL)
         {
-            // printf("newnode(%d) = %p newnode.parent = %p\n", newNode->value, newNode, newNode->parent);
-            newNode = newNode->parent;
+            root = root->parent;
         }
-        return newNode;
+        return root;
     }
 
     // return without a change
@@ -180,7 +165,7 @@ Node* insertFixup(Node* root){
         UncleRelation uncleRel = AWAY_LEFT;
 
         // left is parent, then right is uncle
-        if(grandParent->left->value == root->parent->value){
+        if((grandParent->left != NULL) && (grandParent->left->value == root->parent->value)){
             uncle = grandParent->right; // can be NULL
 
             if((root->parent->left != NULL) && (root->value == root->parent->left->value)){
@@ -224,7 +209,7 @@ Node* insertFixup(Node* root){
                     root->color = RED;
                     root->parent->color = BLACK;
                     root->parent->right->color = RED;
-                    printf("%d - case 3\n", root->value);
+                    printf("%d - case 3 (AWAY_LEFT)\n", root->value);
                     return root;
                     break;
                     
@@ -232,6 +217,15 @@ Node* insertFixup(Node* root){
                     break;
 
                 case AWAY_RIGHT:
+                    root->parent = rotateLeft(root->parent->parent); // grandparent je teraz parent
+                    // printf("fixup = %d -left> %p\n", root->parent->right->value, root->parent->right->left);
+                    // printf("fixup x(%d) = %p x.parent = %p\n", root->parent->value, root->parent, root->parent->parent);
+
+                    root->color = RED;
+                    root->parent->color = BLACK;
+                    root->parent->left->color = RED;
+                    printf("%d - case 3 (AWAY_RIGHT)\n", root->value);
+                    return root;
                     break;
 
                 case TOWARDS_RIGHT:
