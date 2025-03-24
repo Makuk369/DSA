@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 // 0 = NO case print
 // 1 = YES print cases used
@@ -34,8 +35,9 @@ typedef struct node {
 
 Node* createNode(int value);
 Node* insertNode(Node* root, int value);
-
 Node* insertFixup(Node* root);
+
+bool findNode(Node* root, int value);
 
 Node* rotateLeft(Node* root);
 Node* rotateRight(Node* root);
@@ -46,12 +48,10 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod);
 int main()
 {
     Node* treeRoot = NULL;
-
+    int inVal = 0;
+    
     unsigned int numsToAdd = 0;
     scanf("%u", &numsToAdd);
-
-    int inVal = 0;
-
     for (size_t i = 0; i < numsToAdd; i++)
     {
         scanf("%d", &inVal);
@@ -59,15 +59,15 @@ int main()
     }
 
     printTree(treeRoot, 0, INORDER);
+    printf("---------- FINDING: ----------\n");
 
-    // treeRoot->left = rotateLeft(treeRoot->left);
-    // treeRoot = rotateRight(treeRoot);
-    // treeRoot = deleteNode(treeRoot, 5);
-
-    // printTree(treeRoot, 0);
-
-    // int numToFind = 9;
-    // printf("found %d = %s\n", numToFind, findNode(treeRoot, numToFind) ? "true" : "false");
+    unsigned int numsToFind = 0;
+    scanf("%u", &numsToFind);
+    for (size_t i = 0; i < numsToFind; i++)
+    {
+        scanf("%d", &inVal);
+        printf("%d - %s\n", inVal, findNode(treeRoot, inVal) ? "true" : "false");
+    }
 
     free(treeRoot);
     return 0;
@@ -257,6 +257,26 @@ Node* insertFixup(Node* root){
 
     // CASE 5 = no fix needed
     return root;
+}
+
+bool findNode(Node* root, int value){
+    // value not found
+    if(root == NULL){
+        return false;
+    }
+
+    // value found
+    if(root->value == value){
+        return true;
+    }
+
+    // search deeper
+    if(value < root->value){
+        return findNode(root->left, value);
+    }
+    else{
+        return findNode(root->right, value);
+    }
 }
 
 Node* rotateLeft(Node* root){

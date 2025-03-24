@@ -30,16 +30,17 @@ def run_exe_with_io(exe_path, input_txt, output_txt):
         # If there's any error output, also log it
         if stderr:
             output_file.write("\nERROR OUTPUT:\n" + stderr)
-    
-    # print(f"Output saved to {output_txt}")
 
 # Example usage
 exe_path = "RBTree.exe"
 input_txt = "Testing\\input.txt"
 output_txt = "Testing\\output.txt"
+times_txt = "Testing\\times.txt"
 
 testRepeats = int(input("Test repeats: "))
 funcRepeats = int(input("Function repeats: "))
+
+timesFile = open(times_txt, 'w')
 
 for _ in range(testRepeats):
     # Start the timer
@@ -51,6 +52,8 @@ for _ in range(testRepeats):
     # Stop the timer
     end_time = time.perf_counter()
     execution_time = end_time - start_time
-    # print(f"Start = {start_time}, end = {end_time}")
+    
+    timesFile.write(f"{execution_time}\n")
 
-    print(f"Execution completed in {execution_time} seconds.")
+timesFile.close()
+print("TESTS FINISHED!")
