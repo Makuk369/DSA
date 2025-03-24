@@ -34,9 +34,11 @@ typedef struct node {
 } Node;
 
 Node* createNode(int value);
+
 Node* insertNode(Node* root, int value);
+Node* insertFixup(Node* root);
+
 Node* deleteNode(Node* root, int value);
-Node* treeFixup(Node* root);
 
 bool findNode(Node* root, int value);
 
@@ -50,59 +52,25 @@ int main()
 {
     Node* treeRoot = NULL;
     
-    // int inVal = 0;
-    // unsigned int numsToAdd = 0;
-    // scanf("%u", &numsToAdd);
-    // for (size_t i = 0; i < numsToAdd; i++)
-    // {
-    //     scanf("%d", &inVal);
-    //     treeRoot = insertNode(treeRoot, inVal);
-    // }
+    int inVal = 0;
+    unsigned int numsToAdd = 0;
+    scanf("%u", &numsToAdd);
+    for (size_t i = 0; i < numsToAdd; i++)
+    {
+        scanf("%d", &inVal);
+        treeRoot = insertNode(treeRoot, inVal);
+    }
 
-    // printTree(treeRoot, 0, INORDER);
-    // printf("---------- FINDING: ----------\n");
+    printTree(treeRoot, 0, INORDER);
+    printf("---------- FINDING: ----------\n");
 
-    // unsigned int numsToFind = 0;
-    // scanf("%u", &numsToFind);
-    // for (size_t i = 0; i < numsToFind; i++)
-    // {
-    //     scanf("%d", &inVal);
-    //     printf("%d - %s\n", inVal, findNode(treeRoot, inVal) ? "true" : "false");
-    // }
-
-
-
-    printf("\n ---------- 10 ---------- \n");
-    treeRoot = insertNode(treeRoot, 10);
-    printTree(treeRoot, 0, STRUCTURE);
-
-    printf("\n ---------- 5 ---------- \n");
-    treeRoot = insertNode(treeRoot, 5);
-    printTree(treeRoot, 0, STRUCTURE);
-
-    printf("\n ---------- 20 ---------- \n");
-    treeRoot = insertNode(treeRoot, 20);
-    printTree(treeRoot, 0, STRUCTURE);
-
-    printf("\n ---------- 30 ---------- \n");
-    treeRoot = insertNode(treeRoot, 30);
-    printTree(treeRoot, 0, STRUCTURE);
-
-    printf("\n ---------- 1 ---------- \n");
-    treeRoot = insertNode(treeRoot, 1);
-    printTree(treeRoot, 0, STRUCTURE);
-
-    printf("\n ---------- 7 ---------- \n");
-    treeRoot = insertNode(treeRoot, 7);
-    printTree(treeRoot, 0, STRUCTURE);
-
-    printf("\n ---------- 6 ---------- \n");
-    treeRoot = insertNode(treeRoot, 6);
-    printTree(treeRoot, 0, STRUCTURE);
-
-    printf("\n ---------- DEL 10 ---------- \n");
-    treeRoot = deleteNode(treeRoot, 10);
-    printTree(treeRoot, 0, STRUCTURE);
+    unsigned int numsToFind = 0;
+    scanf("%u", &numsToFind);
+    for (size_t i = 0; i < numsToFind; i++)
+    {
+        scanf("%d", &inVal);
+        printf("%d - %s\n", inVal, findNode(treeRoot, inVal) ? "true" : "false");
+    }
 
     free(treeRoot);
     return 0;
@@ -149,7 +117,7 @@ Node* insertNode(Node* root, int value){
 
     // only call on treeRoot
     if(root->parent == NULL){
-        newNode = treeFixup(newNode);
+        newNode = insertFixup(newNode);
 
         while (root->parent != NULL)
         {
@@ -162,72 +130,13 @@ Node* insertNode(Node* root, int value){
     return root;
 }
 
-Node* deleteNode(Node* root, int value){
-    // value not found
-    if(root == NULL){
-        return root;
-    }
-    
-    // node found
-    if(value == root->value){
-        // CASE 1 = root does not have children
-        if((root->left == NULL) && (root->right == NULL)){
-            free(root);
-            root = NULL;
-            return root;
-        }
-
-        // CASE 2 = root has left child
-        if(root->left != NULL){
-            Node* swapNode = root;
-            
-            // go LRRR...
-            root = root->left;
-            while(root->right != NULL){
-                root = root->right;
-            }
-
-            // swap value, repeat on new value
-            int tempVal = root->value;
-            swapNode = deleteNode(swapNode, tempVal);
-            swapNode->value = tempVal;
-            return swapNode;
-        }
-        else{
-            Node* swapNode = root;
-
-            // go RLLL...
-            root = root->right;
-            while(root->left != NULL){
-                root = root->left;
-            }
-
-            // swap value, repeat on new value
-            int tempVal = root->value;
-            swapNode = deleteNode(swapNode, tempVal);
-            swapNode->value = tempVal;
-            return swapNode;
-        }
-    }
-
-    // didnt find = go deeper
-    if(value < root->value){
-        root->left = deleteNode(root->left, value);
-    }
-    else{
-        root->right = deleteNode(root->right, value);
-    }
-
-    return root;
-}
-
-Node* treeFixup(Node* root){
+Node* insertFixup(Node* root){
     // CASE 0 = root is treeRoot and its red
     if(root->parent == NULL){
         if(root->color == RED){
             root->color = BLACK;
             #if CASE_PRINT == 1
-            printf("%d - case 0\n", root->value);
+            printf("%d - fix case 0\n", root->value);
             #endif
             return root;
         }
@@ -240,7 +149,7 @@ Node* treeFixup(Node* root){
     if(root->parent->color == BLACK){
         root->color = RED;
         #if CASE_PRINT == 1
-        printf("%d - case 1\n", root->value);
+        printf("%d - fix case 1\n", root->value);
         #endif
         return root;
     }
@@ -281,9 +190,9 @@ Node* treeFixup(Node* root){
             grandParent->color = RED;
             root->color = RED;
             #if CASE_PRINT == 1
-            printf("%d - case 2\n", root->value);
+            printf("%d - fix case 2\n", root->value);
             #endif
-            grandParent = treeFixup(grandParent);
+            grandParent = insertFixup(grandParent);
             return root;
         }
 
@@ -296,7 +205,7 @@ Node* treeFixup(Node* root){
                     root->parent->color = BLACK;
                     root->parent->right->color = RED;
                     #if CASE_PRINT == 1
-                    printf("%d - case 3 (AWAY_LEFT)\n", root->value);
+                    printf("%d - fix case 3 (AWAY_LEFT)\n", root->value);
                     #endif
                     return root;
                     break;
@@ -307,7 +216,7 @@ Node* treeFixup(Node* root){
                     root->color = BLACK;
                     root->right->color = RED;
                     #if CASE_PRINT == 1
-                    printf("%d - case 3 (TOWARDS_LEFT)\n", root->value);
+                    printf("%d - fix case 3 (TOWARDS_LEFT)\n", root->value);
                     #endif
                     break;
 
@@ -317,7 +226,7 @@ Node* treeFixup(Node* root){
                     root->parent->color = BLACK;
                     root->parent->left->color = RED;
                     #if CASE_PRINT == 1
-                    printf("%d - case 3 (AWAY_RIGHT)\n", root->value);
+                    printf("%d - fix case 3 (AWAY_RIGHT)\n", root->value);
                     #endif
                     return root;
                     break;
@@ -328,7 +237,7 @@ Node* treeFixup(Node* root){
                     root->color = BLACK;
                     root->left->color = RED;
                     #if CASE_PRINT == 1
-                    printf("%d - case 3 (TOWARDS_RIGHT)\n", root->value);
+                    printf("%d - fix case 3 (TOWARDS_RIGHT)\n", root->value);
                     #endif
                     break;
                 
@@ -342,13 +251,81 @@ Node* treeFixup(Node* root){
         if(root->parent->color == RED){
             root->parent->color = BLACK;
             #if CASE_PRINT == 1
-            printf("%d - case 4\n", root->value);
+            printf("%d - fix case 4\n", root->value);
             #endif
             return root;
         }
     }
 
     // CASE 5 = no fix needed
+    return root;
+}
+
+Node* deleteNode(Node* root, int value){
+    // value not found
+    if(root == NULL){
+        return root;
+    }
+    
+    // node found
+    if(value == root->value){
+        // CASE 1 = root does not have children
+        if((root->left == NULL) && (root->right == NULL)){
+            #if CASE_PRINT == 1
+            printf("%d - del case 1\n", root->value);
+            #endif
+            free(root);
+            root = NULL;
+            return root;
+        }
+
+        // CASE 2 = root has left child
+        if(root->left != NULL){
+            #if CASE_PRINT == 1
+            printf("%d - del case 2\n", root->value);
+            #endif
+            Node* swapNode = root;
+            
+            // go LRRR...
+            root = root->left;
+            while(root->right != NULL){
+                root = root->right;
+            }
+
+            // swap value, repeat on new value
+            int tempVal = root->value;
+            swapNode = deleteNode(swapNode, tempVal);
+            swapNode->value = tempVal;
+            return swapNode;
+        }
+        else{ // CASE 3 = root has only right child
+            #if CASE_PRINT == 1
+            printf("%d - del case 3\n", root->value);
+            #endif
+            Node* swapNode = root;
+
+            // go RLLL...
+            root = root->right;
+            while(root->left != NULL){
+                root = root->left;
+            }
+
+            // swap value, repeat on new value
+            int tempVal = root->value;
+            swapNode = deleteNode(swapNode, tempVal);
+            swapNode->value = tempVal;
+            return swapNode;
+        }
+    }
+
+    // didnt find = go deeper
+    if(value < root->value){
+        root->left = deleteNode(root->left, value);
+    }
+    else{
+        root->right = deleteNode(root->right, value);
+    }
+
     return root;
 }
 
