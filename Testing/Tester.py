@@ -29,7 +29,7 @@ def run_exe_with_io(exe_path, input_txt, output_txt):
     print(f"Execution completed. Output saved to {output_txt}")
 
 # Example usage
-exe_path = "Testing\\test.exe"
+exe_path = "RBTree.exe"
 input_txt = "Testing\\input.txt"
 output_txt = "Testing\\output.txt"
 

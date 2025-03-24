@@ -46,41 +46,19 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod);
 int main()
 {
     Node* treeRoot = NULL;
-    
-    // printf("\n ---------- 10 ---------- \n");
-    treeRoot = insertNode(treeRoot, 10);
-    // printTree(treeRoot, 0, INORDER, HIGH);
 
-    // printf("\n ---------- 5 ---------- \n");
-    treeRoot = insertNode(treeRoot, 5);
-    // printTree(treeRoot, 0);
+    unsigned int numsToAdd = 0;
+    scanf("%u", &numsToAdd);
 
-    // printf("\n ---------- 20 ---------- \n");
-    treeRoot = insertNode(treeRoot, 20);
-    // printTree(treeRoot, 0);
+    int inVal = 0;
 
-    // printf("\n ---------- 15 ---------- \n");
-    treeRoot = insertNode(treeRoot, 15);
-    // printTree(treeRoot, 0);
+    for (size_t i = 0; i < numsToAdd; i++)
+    {
+        scanf("%d", &inVal);
+        treeRoot = insertNode(treeRoot, inVal);
+    }
 
-    // printf("\n ---------- 7 ---------- \n");
-    treeRoot = insertNode(treeRoot, 7);
-    // printTree(treeRoot, 0);
-
-    // printf("\n ---------- -5 ---------- \n");
-    treeRoot = insertNode(treeRoot, -5);
-    // printTree(treeRoot, 0);
-
-    // printf("\n ---------- 3 ---------- \n");
-    // treeRoot = insertNode(treeRoot, 3);
-    // printTree(treeRoot, 0);
-
-    // printf("\n ---------- -10 ---------- \n");
-    // treeRoot = insertNode(treeRoot, -10);
-    // printTree(treeRoot, 0);
-
-    printTree(treeRoot, 0, STRUCTURE_MINIMAL);
-    printf("\n");
+    printTree(treeRoot, 0, INORDER);
 
     // treeRoot->left = rotateLeft(treeRoot->left);
     // treeRoot = rotateRight(treeRoot);
