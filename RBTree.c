@@ -60,10 +60,9 @@ int main()
         scanf("%d", &inVal);
         treeRoot = insertNode(treeRoot, inVal);
     }
-
     printTree(treeRoot, 0, INORDER);
-    printf("---------- FINDING: ----------\n");
 
+    printf("---------- FINDING: ----------\n");
     unsigned int numsToFind = 0;
     scanf("%u", &numsToFind);
     for (size_t i = 0; i < numsToFind; i++)
@@ -71,6 +70,16 @@ int main()
         scanf("%d", &inVal);
         printf("%d - %s\n", inVal, findNode(treeRoot, inVal) ? "true" : "false");
     }
+
+    printf("---------- DELETING: ----------\n");
+    unsigned int numsToDel = 0;
+    scanf("%u", &numsToDel);
+    for (size_t i = 0; i < numsToDel; i++)
+    {
+        scanf("%d", &inVal);
+        treeRoot = deleteNode(treeRoot, inVal);
+    }
+    printTree(treeRoot, 0, INORDER);
 
     free(treeRoot);
     return 0;
