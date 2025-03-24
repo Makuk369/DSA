@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// 0 = NO case print
+// 1 = YES print cases used
+#define CASE_PRINT 0
+
 #define RED 1
 #define BLACK 0
 
@@ -11,6 +15,14 @@ typedef enum uncleRelation{
     AWAY_RIGHT,
     TOWARDS_RIGHT
 } UncleRelation;
+
+typedef enum traversalMethod{
+    INORDER,
+    PREORDER,
+    POSTORDER,
+    STRUCTURE,
+    STRUCTURE_MINIMAL
+} TraversalMethod;
 
 typedef struct node {
     int value;
@@ -29,34 +41,34 @@ Node* rotateLeft(Node* root);
 Node* rotateRight(Node* root);
 
 void indent(int tabCount);
-void printTree(Node* root, int level);
+void printTree(Node* root, int level, TraversalMethod traversalMethod);
 
 int main()
 {
     Node* treeRoot = NULL;
     
-    printf("\n ---------- 10 ---------- \n");
+    // printf("\n ---------- 10 ---------- \n");
     treeRoot = insertNode(treeRoot, 10);
-    printTree(treeRoot, 0);
+    // printTree(treeRoot, 0, INORDER, HIGH);
 
     // printf("\n ---------- 5 ---------- \n");
-    // treeRoot = insertNode(treeRoot, 5);
+    treeRoot = insertNode(treeRoot, 5);
     // printTree(treeRoot, 0);
 
-    printf("\n ---------- 20 ---------- \n");
+    // printf("\n ---------- 20 ---------- \n");
     treeRoot = insertNode(treeRoot, 20);
-    printTree(treeRoot, 0);
+    // printTree(treeRoot, 0);
 
-    printf("\n ---------- 15 ---------- \n");
+    // printf("\n ---------- 15 ---------- \n");
     treeRoot = insertNode(treeRoot, 15);
-    printTree(treeRoot, 0);
+    // printTree(treeRoot, 0);
 
     // printf("\n ---------- 7 ---------- \n");
-    // treeRoot = insertNode(treeRoot, 7);
+    treeRoot = insertNode(treeRoot, 7);
     // printTree(treeRoot, 0);
 
     // printf("\n ---------- -5 ---------- \n");
-    // treeRoot = insertNode(treeRoot, -5);
+    treeRoot = insertNode(treeRoot, -5);
     // printTree(treeRoot, 0);
 
     // printf("\n ---------- 3 ---------- \n");
@@ -67,8 +79,8 @@ int main()
     // treeRoot = insertNode(treeRoot, -10);
     // printTree(treeRoot, 0);
 
-    // printTree(treeRoot, 0);
-    // printf("\n");
+    printTree(treeRoot, 0, STRUCTURE_MINIMAL);
+    printf("\n");
 
     // treeRoot->left = rotateLeft(treeRoot->left);
     // treeRoot = rotateRight(treeRoot);
@@ -143,6 +155,9 @@ Node* insertFixup(Node* root){
     if(root->parent == NULL){
         if(root->color == RED){
             root->color = BLACK;
+            #if CASE_PRINT == 1
+            printf("%d - case 0\n", root->value);
+            #endif
             return root;
         }
         else{
@@ -153,7 +168,9 @@ Node* insertFixup(Node* root){
     // CASE 1 = root has a black parent
     if(root->parent->color == BLACK){
         root->color = RED;
+        #if CASE_PRINT == 1
         printf("%d - case 1\n", root->value);
+        #endif
         return root;
     }
 
@@ -192,7 +209,9 @@ Node* insertFixup(Node* root){
             uncle->color = BLACK;
             grandParent->color = RED;
             root->color = RED;
+            #if CASE_PRINT == 1
             printf("%d - case 2\n", root->value);
+            #endif
             grandParent = insertFixup(grandParent);
             return root;
         }
@@ -205,7 +224,9 @@ Node* insertFixup(Node* root){
                     root->color = RED;
                     root->parent->color = BLACK;
                     root->parent->right->color = RED;
+                    #if CASE_PRINT == 1
                     printf("%d - case 3 (AWAY_LEFT)\n", root->value);
+                    #endif
                     return root;
                     break;
                     
@@ -214,6 +235,9 @@ Node* insertFixup(Node* root){
                     root = rotateRight(root->parent);
                     root->color = BLACK;
                     root->right->color = RED;
+                    #if CASE_PRINT == 1
+                    printf("%d - case 3 (TOWARDS_LEFT)\n", root->value);
+                    #endif
                     break;
 
                 case AWAY_RIGHT:
@@ -221,7 +245,9 @@ Node* insertFixup(Node* root){
                     root->color = RED;
                     root->parent->color = BLACK;
                     root->parent->left->color = RED;
+                    #if CASE_PRINT == 1
                     printf("%d - case 3 (AWAY_RIGHT)\n", root->value);
+                    #endif
                     return root;
                     break;
 
@@ -230,6 +256,9 @@ Node* insertFixup(Node* root){
                     root = rotateLeft(root->parent);
                     root->color = BLACK;
                     root->left->color = RED;
+                    #if CASE_PRINT == 1
+                    printf("%d - case 3 (TOWARDS_RIGHT)\n", root->value);
+                    #endif
                     break;
                 
                 default:
@@ -241,7 +270,9 @@ Node* insertFixup(Node* root){
         // CASE 4 = treeRoot is red 
         if(root->parent->color == RED){
             root->parent->color = BLACK;
+            #if CASE_PRINT == 1
             printf("%d - case 4\n", root->value);
+            #endif
             return root;
         }
     }
@@ -311,21 +342,52 @@ void indent(int tabCount){
     }
 }
 
-void printTree(Node* root, int level){
-    if(root == NULL){
-        indent(level);
-        printf("NULL\n");
-        return;
+void printTree(Node* root, int level, TraversalMethod traversalMethod){
+    if(traversalMethod == INORDER){
+        if(root != NULL){
+            printTree(root->left, level+1, INORDER);
+            printf("%d\n", root->value);
+            printTree(root->right, level+1, INORDER);
+        }
     }
-
-    indent(level);
-    printf("value = %d - %s\n", root->value, (root->color == RED) ? "RED" : "BLACK");
-
-    indent(level);
-    printf("left\n");
-    printTree(root->left, level+1);
-
-    indent(level);
-    printf("right\n");
-    printTree(root->right, level+1);
+    else if(traversalMethod == PREORDER){
+        if(root != NULL){
+            printf("%d\n", root->value);
+            printTree(root->left, level+1, PREORDER);
+            printTree(root->right, level+1, PREORDER);
+        }
+    }
+    else if(traversalMethod == POSTORDER){
+        if(root != NULL){
+            printTree(root->left, level+1, POSTORDER);
+            printTree(root->right, level+1, POSTORDER);
+            printf("%d\n", root->value);
+        }
+    }
+    else if(traversalMethod == STRUCTURE){
+        if(root == NULL){
+            indent(level);
+            printf("NULL\n");
+            return;
+        }
+    
+        indent(level);
+        printf("value = %d - %s\n", root->value, (root->color == RED) ? "RED" : "BLACK");
+    
+        indent(level);
+        printf("left\n");
+        printTree(root->left, level+1, STRUCTURE);
+    
+        indent(level);
+        printf("right\n");
+        printTree(root->right, level+1, STRUCTURE);
+    }
+    else if(traversalMethod == STRUCTURE_MINIMAL){
+        if(root != NULL){
+            indent(level);
+            printf("%d-%s\n", root->value, (root->color == RED) ? "R" : "B");
+            printTree(root->left, level+1, STRUCTURE_MINIMAL);
+            printTree(root->right, level+1, STRUCTURE_MINIMAL);
+        }
+    }
 }
