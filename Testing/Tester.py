@@ -5,8 +5,6 @@ def run_exe_with_io(exe_path, input_txt, output_txt):
     # Open the input file to read values
     with open(input_txt, 'r') as input_file:
         input_data = input_file.read()
-
-
     
     # Open the output file to store the output
     with open(output_txt, 'w') as output_file:
@@ -21,8 +19,6 @@ def run_exe_with_io(exe_path, input_txt, output_txt):
         
         # Pass input to the executable and capture output
         stdout, stderr = process.communicate(input=input_data)
-
-        
         
         # Write output to file
         output_file.write(stdout)

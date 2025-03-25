@@ -39,6 +39,7 @@ for num in range(dels):
                 delNum -= delNum
             continue
 
+numList.sort()
 for num in numList:
     expInputFile.write(f"{num}\n")
 
