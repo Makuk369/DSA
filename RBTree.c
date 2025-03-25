@@ -54,6 +54,8 @@ int main()
     
     int inVal = 0;
     unsigned int numsToAdd = 0;
+
+    // printf("---------- INSERTING: ----------\n");
     scanf("%u", &numsToAdd);
     for (size_t i = 0; i < numsToAdd; i++)
     {
@@ -62,16 +64,8 @@ int main()
     }
     printTree(treeRoot, 0, INORDER);
 
-    printf("---------- FINDING: ----------\n");
-    unsigned int numsToFind = 0;
-    scanf("%u", &numsToFind);
-    for (size_t i = 0; i < numsToFind; i++)
-    {
-        scanf("%d", &inVal);
-        printf("%d - %s\n", inVal, findNode(treeRoot, inVal) ? "true" : "false");
-    }
-
-    printf("---------- DELETING: ----------\n");
+    // printf("---------- DELETING: ----------\n");
+    printf("\n");
     unsigned int numsToDel = 0;
     scanf("%u", &numsToDel);
     for (size_t i = 0; i < numsToDel; i++)
@@ -80,6 +74,16 @@ int main()
         treeRoot = deleteNode(treeRoot, inVal);
     }
     printTree(treeRoot, 0, INORDER);
+
+    // printf("---------- FINDING: ----------\n");
+    printf("\n");
+    unsigned int numsToFind = 0;
+    scanf("%u", &numsToFind);
+    for (size_t i = 0; i < numsToFind; i++)
+    {
+        scanf("%d", &inVal);
+        printf("%d - %s\n", inVal, findNode(treeRoot, inVal) ? "true" : "false");
+    }
 
     free(treeRoot);
     return 0;
