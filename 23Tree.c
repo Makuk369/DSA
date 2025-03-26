@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef enum traversalMethod{
     INORDER,
@@ -10,9 +11,10 @@ typedef enum traversalMethod{
 } TraversalMethod;
 
 typedef struct Node {
-    int values[2]; // Stores up to 2 values
-    struct Node *children[3]; // Stores up to 3 children
-    int numOfVals; // Number of values in the node (1 or 2)
+    int values[3]; // Stores up to 2 + 1 values
+    struct Node *children[3]; // Stores up to 3 children (0 = left, 1 = middle, 2 = right)
+    int numOfVals; // Number of values in the node (1 - 3)
+    bool isLeaf;
 } Node;
 
 Node* createNode(int value);
@@ -26,7 +28,7 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod);
 int main() {
     Node* treeRoot = NULL;
     treeRoot = insert(treeRoot, 10);
-    treeRoot = insert(treeRoot, 20);
+    // treeRoot = insert(treeRoot, 20);
     // root = insert(root, 5);
     
     printTree(treeRoot, 0, STRUCTURE);
@@ -38,35 +40,41 @@ int main() {
     return 0;
 }
 
+// creates node with one value
+// isLeaf is true by defult
 Node* createNode(int value) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     newNode->values[0] = value;
     newNode->numOfVals = 1;
-    newNode->children[0] = newNode->children[1] = newNode->children[2] = NULL;
+    newNode->children[0] = NULL;
+    newNode->children[1] = NULL;
+    newNode->children[2] = NULL;
+    newNode->isLeaf = true;
     return newNode;
 }
 
 Node* insert(Node* root, int value) {
-    if (!root) return createNode(value);
+    if (root == NULL) return createNode(value);
     
-    if (root->numOfVals < 2) {
-        // Insert value into the correct position in the node
-        if (value < root->values[0]) {
-            root->values[1] = root->values[0];
-            root->values[0] = value;
-        } else {
-            root->values[1] = value;
-        }
-        root->numOfVals++;
-    } else {
-        // Tree split handling required (not implemented here)
-        printf("Node is full. Splitting required!\n");
-    }
-    return root;
+    // // root has empty space
+    // if (root->numOfVals < 2) {
+    //     // Insert value into the correct position in the node
+    //     if (value < root->values[0]) {
+    //         root->values[1] = root->values[0];
+    //         root->values[0] = value;
+    //     } else {
+    //         root->values[1] = value;
+    //     }
+    //     root->numOfVals++;
+    // } else {
+    //     // Tree split handling required (not implemented here)
+    //     printf("Node is full. Splitting required!\n");
+    // }
+    // return root;
 }
 
 int findNode(Node* root, int value) {
-    if (!root) return 0;
+    if (root == NULL) return 0;
     if (root->values[0] == value || (root->numOfVals == 2 && root->values[1] == value)) return 1;
     
     if (value < root->values[0]) return findNode(root->children[0], value);
@@ -83,7 +91,7 @@ void indent(int tabCount){
 
 void printTree(Node* root, int level, TraversalMethod traversalMethod) {
     if(traversalMethod == INORDER){
-        if (!root) return;
+        if (root == NULL) return;
 
         printTree(root->children[0], 0, INORDER);
         printf("%d ", root->values[0]);
