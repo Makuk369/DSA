@@ -35,6 +35,7 @@ for num in range(dels):
         except:
             if(delNum < dels):
                 delNum += 1
+                print(f"exept {delNum} < {dels}\n")
             else:
                 delNum -= delNum
             continue

@@ -2,9 +2,14 @@ import subprocess
 import time
 
 def run_exe_with_io(exe_path, input_txt, output_txt):
+    global execution_time
+
     # Open the input file to read values
     with open(input_txt, 'r') as input_file:
         input_data = input_file.read()
+    
+    # Start the timer
+    start_time = time.perf_counter()
     
     # Open the output file to store the output
     with open(output_txt, 'w') as output_file:
@@ -20,6 +25,10 @@ def run_exe_with_io(exe_path, input_txt, output_txt):
         # Pass input to the executable and capture output
         stdout, stderr = process.communicate(input=input_data)
         
+        # Stop the timer
+        end_time = time.perf_counter()
+        execution_time = end_time - start_time
+
         # Write output to file
         output_file.write(stdout)
         
@@ -39,16 +48,10 @@ funcRepeats = int(input("Function repeats: "))
 timesFile = open(times_txt, 'w')
 
 for _ in range(testRepeats):
-    # Start the timer
-    start_time = time.perf_counter()
-
+   
     for _ in range(funcRepeats):
         run_exe_with_io(exe_path, input_txt, output_txt)
 
-    # Stop the timer
-    end_time = time.perf_counter()
-    execution_time = end_time - start_time
-    
     timesFile.write(f"{execution_time}\n")
 
 timesFile.close()
