@@ -7,5 +7,10 @@ Testing/test.exe
 Testing/test2.c
 Testing/test2.exe
 
+Testing/expectedOutput.txt
+Testing/input.txt
+Testing/output.txt
+Testing/times.txt
+
 AVLTree.c
 AVLTree.exe
