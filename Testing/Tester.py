@@ -43,16 +43,13 @@ output_txt = "Testing\\output.txt"
 times_txt = "Testing\\times.txt"
 
 testRepeats = int(input("Test repeats: "))
-funcRepeats = int(input("Function repeats: "))
 
 timesFile = open(times_txt, 'w')
 
-for _ in range(testRepeats):
-   
-    for _ in range(funcRepeats):
-        run_exe_with_io(exe_path, input_txt, output_txt)
-
+for i in range(testRepeats):
+    run_exe_with_io(exe_path, input_txt, output_txt)
     timesFile.write(f"{execution_time}\n")
+    print(f"progress = {i+1}/{testRepeats}")
 
 timesFile.close()
 print("TESTS FINISHED!")

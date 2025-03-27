@@ -27,6 +27,7 @@ for num in numList:
 inputFile.write(f"\n{dels}\n")
 for num in range(dels):
     delNum = random.randint(0, inserts)
+    print(f"dels progress = {num+1}/{dels}")
     while True:
         try:
             numList.remove(delNum)
@@ -35,7 +36,7 @@ for num in range(dels):
         except:
             if(delNum < dels):
                 delNum += 1
-                print(f"exept {delNum} < {dels}\n")
+                # print(f"exept {delNum} < {dels}\n")
             else:
                 delNum -= delNum
             continue
@@ -49,6 +50,7 @@ expInputFile.write(f"\n")
 # Finding
 inputFile.write(f"\n{finds}\n")
 for num in range(finds):
+    print(f"finds progress = {num+1}/{finds}")
     randNum = random.randint(0, inserts)
     inputFile.write(f"{randNum}\n")
 
