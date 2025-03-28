@@ -24,7 +24,7 @@ for r in range(1, repeats+1):
         # print(f"insert progress = {num+1}/{inserts}")
         numList.append(num)
         expOutputFile.write(f"{num}\n")
-    print("FINISHED INSERTING")
+    # print("FINISHED INSERTING")
 
     expOutputFile.write(f"\n")
 
@@ -45,11 +45,11 @@ for r in range(1, repeats+1):
             except:
                 if(delNum < dels*r):
                     delNum += 1
-                    print(f"exept {delNum} < {dels*r}\n")
+                    # print(f"exept {delNum} < {dels*r}\n")
                 else:
                     delNum -= (inserts*r)-inserts
                 continue
-    print("FINISHED DELETING")
+    # print("FINISHED DELETING")
 
     numList.sort()
     for num in numList:
@@ -68,7 +68,7 @@ for r in range(1, repeats+1):
             expOutputFile.write(f"{randNum} - true\n")
         else:
             expOutputFile.write(f"{randNum} - false\n")
-    print("FINISHED FINDING")
+    # print("FINISHED FINDING")
     
     numList.clear()
     print(f"FINISHED REPEAT {r}/{repeats}")
