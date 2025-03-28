@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+#define PRECISE_TIMING 1
+#if PRECISE_TIMING == 1
+#include <time.h> // only used for testing
+#endif
+
 // 0 = NO case print
 // 1 = YES print cases used
 #define CASE_PRINT 0
@@ -54,7 +59,74 @@ int main()
     
     int inVal = 0;
     unsigned int numsToAdd = 0;
+    unsigned int numsToDel = 0;
+    unsigned int numsToFind = 0;
 
+    #if PRECISE_TIMING == 1
+    clock_t start, end;
+    double cpuTimeUsed;
+
+    FILE *timesFile;
+    timesFile = fopen("Testing/preciseTimes.txt", "w");
+    if (timesFile == NULL) {
+        printf("Error opening file!\n");
+    }
+
+    unsigned int repeats = 0;
+    unsigned int totalInsertNums = 0;
+    unsigned int totalDeleteNums = 0;
+    unsigned int totalFindNums = 0;
+    scanf("%u", &repeats);
+    
+    for (size_t r = 0; r < repeats; r++)
+    {
+        // printf("---------- INSERTING: ----------\n");
+        scanf("%u", &numsToAdd);
+        totalInsertNums += numsToAdd;
+        start = clock(); // Start time
+        for (size_t i = 0; i < numsToAdd; i++)
+        {
+            scanf("%d", &inVal);
+            treeRoot = insertNode(treeRoot, inVal);
+        }
+        end = clock(); // End time
+        cpuTimeUsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+        fprintf(timesFile, "insert: %u %f\n", totalInsertNums, cpuTimeUsed);
+        printTree(treeRoot, 0, INORDER);
+
+
+        // printf("---------- DELETING: ----------\n");
+        printf("\n");
+        scanf("%u", &numsToDel);
+        totalDeleteNums += numsToDel;
+        start = clock(); // Start time
+        for (size_t i = 0; i < numsToDel; i++)
+        {
+            scanf("%d", &inVal);
+            treeRoot = deleteNode(treeRoot, inVal);
+        }
+        end = clock(); // End time
+        cpuTimeUsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+        fprintf(timesFile, "delete: %u %f\n", totalDeleteNums, cpuTimeUsed);
+        printTree(treeRoot, 0, INORDER);
+
+        // printf("---------- FINDING: ----------\n");
+        printf("\n");
+        scanf("%u", &numsToFind);
+        totalFindNums += numsToFind;
+        start = clock(); // Start time
+        for (size_t i = 0; i < numsToFind; i++)
+        {
+            scanf("%d", &inVal);
+            printf("%d - %s\n", inVal, findNode(treeRoot, inVal) ? "true" : "false");
+        }
+        end = clock(); // End time
+        cpuTimeUsed = ((double) (end - start)) / CLOCKS_PER_SEC;
+        fprintf(timesFile, "find: %u %f\n", totalFindNums, cpuTimeUsed);
+    }
+    fclose(timesFile);
+    #else
+    
     // printf("---------- INSERTING: ----------\n");
     scanf("%u", &numsToAdd);
     for (size_t i = 0; i < numsToAdd; i++)
@@ -66,7 +138,6 @@ int main()
 
     // printf("---------- DELETING: ----------\n");
     printf("\n");
-    unsigned int numsToDel = 0;
     scanf("%u", &numsToDel);
     for (size_t i = 0; i < numsToDel; i++)
     {
@@ -77,13 +148,13 @@ int main()
 
     // printf("---------- FINDING: ----------\n");
     printf("\n");
-    unsigned int numsToFind = 0;
     scanf("%u", &numsToFind);
     for (size_t i = 0; i < numsToFind; i++)
     {
         scanf("%d", &inVal);
         printf("%d - %s\n", inVal, findNode(treeRoot, inVal) ? "true" : "false");
     }
+    #endif
 
     free(treeRoot);
     return 0;
