@@ -1,5 +1,8 @@
 import random
 
+# Example input for 1mil inserts:
+# repeats = 100
+# inserts = 10000
 repeats = int(input("Number of Repeats: "))
 inserts = int(input("Number of Nodes to input: "))
 dels = int(input("Number of Nodes to delete: "))
@@ -50,7 +53,7 @@ for r in range(1, repeats+1):
 for r in range(1, repeats+1):
     inputFile.write(f"\n{finds}\n")
     for num in range(finds):
-        print(f"finds progress = {num+1}/{finds}")
+        # print(f"finds progress = {num+1}/{finds}")
         randNum = random.randint((inserts*r)-inserts, inserts*r)
         inputFile.write(f"{randNum}\n")
 
