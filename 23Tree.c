@@ -33,7 +33,8 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod);
 
 int main() {
     Node* treeRoot = NULL;
-    treeRoot = insert(treeRoot, 10);
+    treeRoot = insert(treeRoot, 50);
+    treeRoot = insert(treeRoot, 62);
     // treeRoot = insert(treeRoot, 20);
     // root = insert(root, 5);
     
@@ -51,6 +52,8 @@ int main() {
 Node* createNode(int value) {
     Node* newNode = (Node*)malloc(sizeof(Node));
     newNode->values[0] = value;
+    newNode->values[1] = 0;
+    newNode->values[2] = 0;
     newNode->numOfVals = 1;
     newNode->children[0] = NULL;
     newNode->children[1] = NULL;
@@ -61,7 +64,7 @@ Node* createNode(int value) {
 
 Node* addVal(Node* root, int value){
     if(root->numOfVals > 2){
-        #if ERROR_PRINT == 1:
+        #if ERROR_PRINT == 1
         printf("addVal ERROR cannot add more - limit reached\n");
         #endif
         exit(1);
@@ -79,7 +82,7 @@ Node* addVal(Node* root, int value){
         root->values[1] = value;
     }
     else {
-        root->values[root->numOfVals-1] = value; // add to end
+        root->values[root->numOfVals] = value; // add to end
     }
     root->numOfVals++;
     return root;
@@ -87,7 +90,7 @@ Node* addVal(Node* root, int value){
 
 Node* rmVal(Node* root, int value){
     if(root->numOfVals < 2){
-        #if ERROR_PRINT == 1:
+        #if ERROR_PRINT == 1
         printf("rmVal ERROR cannot remove - numOfVals would be 0\n");
         #endif
         exit(1);
@@ -110,7 +113,7 @@ Node* rmVal(Node* root, int value){
         root->values[2] = 0;
     }
     else{
-        #if ERROR_PRINT == 1:
+        #if ERROR_PRINT == 1
         printf("rmVal ERROR value to remove not found\n");
         #endif
         exit(1);
