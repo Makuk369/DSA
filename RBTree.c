@@ -83,7 +83,7 @@ int main()
     {
         // printf("---------- INSERTING: ----------\n");
         scanf("%u", &numsToAdd);
-        totalInsertNums += numsToAdd - totalDeleteNums;
+        totalInsertNums += numsToAdd;
         clock_gettime(CLOCK_MONOTONIC, &start);  // Start time
         for (size_t i = 0; i < numsToAdd; i++)
         {
@@ -94,8 +94,9 @@ int main()
         cpuTimeUsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1E9;
         fprintf(timesFile, "insert: %u %f\n", totalInsertNums, cpuTimeUsed);
         // printTree(treeRoot, 0, INORDER);
-
-
+    }
+    for (size_t r = 0; r < repeats; r++)
+    {
         // printf("---------- DELETING: ----------\n");
         // printf("\n");
         scanf("%u", &numsToDel);
@@ -110,7 +111,9 @@ int main()
         cpuTimeUsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1E9;
         fprintf(timesFile, "delete: %u %f\n", totalDeleteNums, cpuTimeUsed);
         // printTree(treeRoot, 0, INORDER);
-
+    }
+    for (size_t r = 0; r < repeats; r++)
+    {
         // printf("---------- FINDING: ----------\n");
         // printf("\n");
         scanf("%u", &numsToFind);
