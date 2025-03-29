@@ -19,7 +19,7 @@ def plot_data(data):
     for name, values in data.items():
         plt.plot(values['count'], values['time'], marker='o', linestyle='-', label=name)
     
-    plt.xlabel('Count')
+    plt.xlabel('Nodes Count')
     plt.ylabel('Time Taken (seconds)')
     plt.title('Performance over Different Counts')
     

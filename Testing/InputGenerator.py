@@ -6,7 +6,6 @@ dels = int(input("Number of Nodes to delete: "))
 finds = int(input("Number of Nodes to find: "))
 
 numList = [[] for _ in range(repeats)]
-print(numList)
 
 input_txt = "Testing\\input.txt"
 expOutput_txt = "Testing\\expectedOutput.txt"
