@@ -35,20 +35,8 @@ for r in range(1, repeats+1):
     # Deleting
     inputFile.write(f"\n{dels}\n")
     for num in range(dels):
-        delNum = random.randint((inserts*r)-inserts, inserts*r)
-        print(f"dels progress = {num+1}/{dels}")
-        while True:
-            try:
-                numList.remove(delNum)
-                inputFile.write(f"{delNum}\n")
-                break
-            except:
-                if(delNum < dels*r):
-                    delNum += 1
-                    # print(f"exept {delNum} < {dels*r}\n")
-                else:
-                    delNum -= (inserts*r)-inserts
-                continue
+        delNum = numList.pop(random.randrange(len(numList)))
+        inputFile.write(f"{delNum}\n")
     # print("FINISHED DELETING")
 
     numList.sort()

@@ -83,7 +83,7 @@ int main()
     {
         // printf("---------- INSERTING: ----------\n");
         scanf("%u", &numsToAdd);
-        totalInsertNums += numsToAdd;
+        totalInsertNums += numsToAdd - totalDeleteNums;
         clock_gettime(CLOCK_MONOTONIC, &start);  // Start time
         for (size_t i = 0; i < numsToAdd; i++)
         {

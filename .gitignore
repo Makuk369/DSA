@@ -8,6 +8,7 @@ Testing/test2.c
 Testing/test2.exe
 
 Testing/*.txt
+Testing/Graphs
 
 AVLTree.c
 AVLTree.exe
