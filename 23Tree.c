@@ -46,8 +46,8 @@ int main() {
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    treeRoot = insertNode(treeRoot, 5);
-    printf("----- 5 -----\n");
+    treeRoot = insertNode(treeRoot, 2);
+    printf("----- 2 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
@@ -56,25 +56,35 @@ int main() {
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    // treeRoot = insertNode(treeRoot, 43);
-    // printf("----- 43 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
+    treeRoot = insertNode(treeRoot, 5);
+    printf("----- 5 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
 
-    // treeRoot = insertNode(treeRoot, 31);
-    // printf("----- 31 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
+    treeRoot = insertNode(treeRoot, 30);
+    printf("----- 30 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
 
-    // treeRoot = insertNode(treeRoot, 25);
-    // printf("----- 25 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
+    treeRoot = insertNode(treeRoot, 40);
+    printf("----- 40 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
 
-    // treeRoot = insertNode(treeRoot, 15);
-    // printf("----- 15 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
+    treeRoot = insertNode(treeRoot, 8);
+    printf("----- 8 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
+
+    treeRoot = insertNode(treeRoot, 50);
+    printf("----- 50 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
+
+    treeRoot = insertNode(treeRoot, 60);
+    printf("----- 60 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
     
     // int value = 10;
     // printf("Search %d: %s\n", value, findNode(treeRoot, value) ? "Found" : "Not Found");
@@ -162,13 +172,29 @@ Node* splitRootNode(Node* root){
     Node* newRoot = createNode(root->values[1]);
     newRoot->isLeaf = false;
 
-    newRoot->children[0] = createNode(root->values[0]);
-    newRoot->children[2] = createNode(root->values[2]);
+    newRoot->children[LEFT] = createNode(root->values[0]);
+    newRoot->children[LEFT]->isLeaf = root->isLeaf;
+    newRoot->children[RIGHT] = createNode(root->values[2]);
+    newRoot->children[RIGHT]->isLeaf = root->isLeaf;
 
-    newRoot->children[0]->children[0] = root->children[0];
-    newRoot->children[0]->children[2] = root->children[3];
-    newRoot->children[2]->children[0] = root->children[1];
-    newRoot->children[2]->children[2] = root->children[2];
+    if((root->children[TEMP_CHILD] != NULL) && (root->children[TEMP_CHILD]->values[0] < root->values[1])){
+        newRoot->children[LEFT]->children[LEFT] = root->children[LEFT];
+        newRoot->children[LEFT]->children[RIGHT] = root->children[TEMP_CHILD];
+        newRoot->children[RIGHT]->children[LEFT] = root->children[MIDDLE];
+        newRoot->children[RIGHT]->children[RIGHT] = root->children[RIGHT];
+    }
+    else if((root->children[TEMP_CHILD] != NULL) && (root->children[TEMP_CHILD]->values[0] < root->values[2])){
+        newRoot->children[LEFT]->children[LEFT] = root->children[LEFT];
+        newRoot->children[LEFT]->children[RIGHT] = root->children[MIDDLE];
+        newRoot->children[RIGHT]->children[LEFT] = root->children[TEMP_CHILD];
+        newRoot->children[RIGHT]->children[RIGHT] = root->children[RIGHT];
+    }
+    else{
+        newRoot->children[LEFT]->children[LEFT] = root->children[LEFT];
+        newRoot->children[LEFT]->children[RIGHT] = root->children[MIDDLE];
+        newRoot->children[RIGHT]->children[LEFT] = root->children[RIGHT];
+        newRoot->children[RIGHT]->children[RIGHT] = root->children[TEMP_CHILD];
+    }
 
     free(root);
     root = NULL;
@@ -176,49 +202,44 @@ Node* splitRootNode(Node* root){
 }
 
 Node* splitChildNode(Node* root, int childIndex){
-    if(childIndex == -1){ // not child but root
-        Node* newNode = createNode(root->values[1]);
-        newNode->isLeaf = false;
+    Node* fullNode = root->children[childIndex];
 
-        root = rmVal(root, root->values[1]);
-        
-        newNode->children[2] = createNode(root->values[1]);
-        root = rmVal(root, root->values[1]);
-
-        if((root->children[1] != NULL) && (root->children[2] != NULL)){
-            newNode->children[2]->children[0] = root->children[1];
-            newNode->children[2]->children[2] = root->children[2];
+    if(root->children[MIDDLE] != NULL){
+        root = addVal(root, fullNode->values[1]);
+        fullNode = rmVal(fullNode, fullNode->values[1]);
     
-            root->children[1]->values[0] = root->children[0]->values[1];
-            root->children[1] = rmVal(root->children[1], root->children[1]->values[1]);
-    
-            root->children[2] = root->children[1];
-            root->children[1] = NULL;
-        }
-
-        newNode->children[0] = root;
-        return newNode;
-    } 
-    else{
-        Node* fullNode = root->children[childIndex];
+        Node* newNode = createNode(fullNode->values[1]);
+        fullNode = rmVal(fullNode, fullNode->values[1]);
+        // if(root->values[0] > fullNode->values[1]){
+        //     newNode = createNode(fullNode->values[1]);
+        //     fullNode = rmVal(fullNode, fullNode->values[1]);
+        // }
+        // else{
+        //     newNode = createNode(fullNode->values[0]);
+        //     fullNode = rmVal(fullNode, fullNode->values[0]);
+        // }
         
-        if(root->children[1] == NULL){ // does not have middle child
-            Node* newNode = createNode(fullNode->values[2]);
-            newNode->isLeaf = fullNode->isLeaf;
-
-            root = addVal(root, fullNode->values[1]);
-
-            fullNode = rmVal(fullNode, fullNode->values[fullNode->numOfVals - 1]);
-            fullNode = rmVal(fullNode, fullNode->values[fullNode->numOfVals - 1]);
-            
-            root->children[1] = newNode;
-            return root;
-        }
-        else{ // has middle child (also means root.numOfVals == 2)
-            root = addVal(root, fullNode->values[1]);
+        root->children[TEMP_CHILD] = newNode;
+    
+        return root;
+    }
+    else{ // middle child == NULL (means root has only one val)
+        root = addVal(root, fullNode->values[1]);
+        fullNode = rmVal(fullNode, fullNode->values[1]);
+    
+        Node* newNode = NULL;
+        if(childIndex == LEFT){
+            newNode = createNode(fullNode->values[1]);
             fullNode = rmVal(fullNode, fullNode->values[1]);
-            return root;
         }
+        else{ // childIndex == RIGHT
+            newNode = createNode(fullNode->values[0]);
+            fullNode = rmVal(fullNode, fullNode->values[0]);
+        }
+        
+        root->children[MIDDLE] = newNode;
+    
+        return root;
     }
 }
 
@@ -227,22 +248,41 @@ Node* insertNode(Node* root, int value) {
         return createNode(value);
     }
 
+    if((root->values[0] == value) || (root->values[1] == value)){ // duplicate val
+        #if ERROR_PRINT == 1
+        printf("insert ERROR duplicate value found\n");
+        #endif
+        return NULL;
+    }
+
     if(root->isLeaf){
         root = addVal(root, value);
     }
     else{ // is not leaf
         // go deeper
         if(value < root->values[0]){
-            root->children[0] = insertNode(root->children[0], value);
+            root->children[LEFT] = insertNode(root->children[LEFT], value);
         }
-        else if((root->numOfVals > 3) && (value < root->values[1])){
-            root->children[1] = insertNode(root->children[1], value);
+        else if((root->numOfVals > 1) && (value < root->values[1])){
+            root->children[MIDDLE] = insertNode(root->children[MIDDLE], value);
         }
         else{ // value > root.values[1]
-            root->children[2] = insertNode(root->children[2], value);
+            root->children[RIGHT] = insertNode(root->children[RIGHT], value);
         }
     }
 
+    //child is full
+    if((root->children[LEFT] != NULL) && (root->children[LEFT]->numOfVals > 2)){
+        root = splitChildNode(root, LEFT);
+    }
+    else if((root->children[MIDDLE] != NULL) && (root->children[MIDDLE]->numOfVals > 2)){
+        root = splitChildNode(root, MIDDLE);
+    }
+    else if((root->children[RIGHT] != NULL) && (root->children[RIGHT]->numOfVals > 2)){
+        root = splitChildNode(root, RIGHT);
+    }
+
+    //treeRoot is full
     if((root == treeRoot) && (root->numOfVals > 2)){
         root = splitRootNode(root);
     }
