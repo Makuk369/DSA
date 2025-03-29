@@ -4,6 +4,11 @@
 
 #define ERROR_PRINT 1
 
+#define LEFT 0
+#define MIDDLE 1
+#define RIGHT 2
+#define TEMP_CHILD 3
+
 typedef enum traversalMethod{
     INORDER,
     PREORDER,
@@ -14,7 +19,7 @@ typedef enum traversalMethod{
 
 typedef struct Node {
     int values[3]; // Stores up to 2 + 1 values
-    struct Node *children[3]; // Stores up to 3 children (0 = left, 1 = middle, 2 = right)
+    struct Node *children[4]; // Stores up to 3 children (0 = left, 1 = middle, 2 = right, 3 = temp)
     int numOfVals; // Number of values in the node (1 - 3)
     bool isLeaf;
     // short type; // -1 = root, 0 = normalNode, 1 = leaf
@@ -23,7 +28,8 @@ typedef struct Node {
 Node* createNode(int value);
 Node* addVal(Node* root, int value);
 Node* rmVal(Node* root, int value);
-Node* splitNode(Node* root, int childIndex);
+Node* splitRootNode(Node* root);
+Node* splitChildNode(Node* root, int childIndex);
 
 Node* insertNode(Node* root, int value);
 
@@ -32,37 +38,38 @@ int findNode(Node* root, int value);
 void indent(int tabCount);
 void printTree(Node* root, int level, TraversalMethod traversalMethod);
 
+Node* treeRoot = NULL; // base of the tree
+
 int main() {
-    Node* treeRoot = NULL;
-    treeRoot = insertNode(treeRoot, 50);
-    printf("----- 50 -----\n");
+    treeRoot = insertNode(treeRoot, 10);
+    printf("----- 10 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    treeRoot = insertNode(treeRoot, 62);
-    printf("----- 62 -----\n");
+    treeRoot = insertNode(treeRoot, 5);
+    printf("----- 5 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    treeRoot = insertNode(treeRoot, 69);
-    printf("----- 69 -----\n");
+    treeRoot = insertNode(treeRoot, 20);
+    printf("----- 20 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    treeRoot = insertNode(treeRoot, 43);
-    printf("----- 43 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
+    // treeRoot = insertNode(treeRoot, 43);
+    // printf("----- 43 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
 
-    treeRoot = insertNode(treeRoot, 31);
-    printf("----- 31 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
+    // treeRoot = insertNode(treeRoot, 31);
+    // printf("----- 31 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
 
-    treeRoot = insertNode(treeRoot, 25);
-    printf("----- 25 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
+    // treeRoot = insertNode(treeRoot, 25);
+    // printf("----- 25 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
 
     // treeRoot = insertNode(treeRoot, 15);
     // printf("----- 15 -----\n");
@@ -86,6 +93,7 @@ Node* createNode(int value) {
     newNode->children[0] = NULL;
     newNode->children[1] = NULL;
     newNode->children[2] = NULL;
+    newNode->children[3] = NULL;
     newNode->isLeaf = true;
     return newNode;
 }
@@ -150,7 +158,24 @@ Node* rmVal(Node* root, int value){
     return root;
 }
 
-Node* splitNode(Node* root, int childIndex){
+Node* splitRootNode(Node* root){
+    Node* newRoot = createNode(root->values[1]);
+    newRoot->isLeaf = false;
+
+    newRoot->children[0] = createNode(root->values[0]);
+    newRoot->children[2] = createNode(root->values[2]);
+
+    newRoot->children[0]->children[0] = root->children[0];
+    newRoot->children[0]->children[2] = root->children[3];
+    newRoot->children[2]->children[0] = root->children[1];
+    newRoot->children[2]->children[2] = root->children[2];
+
+    free(root);
+    root = NULL;
+    return newRoot;
+}
+
+Node* splitChildNode(Node* root, int childIndex){
     if(childIndex == -1){ // not child but root
         Node* newNode = createNode(root->values[1]);
         newNode->isLeaf = false;
@@ -198,9 +223,14 @@ Node* splitNode(Node* root, int childIndex){
 }
 
 Node* insertNode(Node* root, int value) {
-    if (root == NULL) return createNode(value);
-    
-    if(root->isLeaf == false){
+    if(treeRoot == NULL){
+        return createNode(value);
+    }
+
+    if(root->isLeaf){
+        root = addVal(root, value);
+    }
+    else{ // is not leaf
         // go deeper
         if(value < root->values[0]){
             root->children[0] = insertNode(root->children[0], value);
@@ -211,22 +241,10 @@ Node* insertNode(Node* root, int value) {
         else{ // value > root.values[1]
             root->children[2] = insertNode(root->children[2], value);
         }
+    }
 
-        if(root->children[0]->numOfVals > 2){
-            root = splitNode(root, 0);
-    
-            if(root->numOfVals > 2){
-                root = splitNode(root, -1);
-            }
-        }
-    }
-    
-    if(root->isLeaf){
-        root = addVal(root, value);
-    }
-    
-    if(root->numOfVals > 2){
-        root = splitNode(root, -1);
+    if((root == treeRoot) && (root->numOfVals > 2)){
+        root = splitRootNode(root);
     }
 
     return root;
