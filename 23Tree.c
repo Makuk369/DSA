@@ -35,12 +35,26 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod);
 int main() {
     Node* treeRoot = NULL;
     treeRoot = insert(treeRoot, 50);
+
     treeRoot = insert(treeRoot, 62);
-    treeRoot = insert(treeRoot, 69);
-    // root = insert(root, 5);
-    
+    printf("----- 62 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
+
+    treeRoot = insert(treeRoot, 69);
+    printf("----- 69 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
+
+    treeRoot = insert(treeRoot, 43);
+    printf("----- 43 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
+
+    // treeRoot = insert(treeRoot, 80);
+    // printf("----- 80 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
     
     // int value = 10;
     // printf("Search %d: %s\n", value, findNode(treeRoot, value) ? "Found" : "Not Found");
@@ -128,6 +142,7 @@ Node* splitNode(Node* root, int childIndex){
     {
     case -1: // not child but root
         Node* newNode = createNode(root->values[1]);
+        newNode->isLeaf = false;
         root = rmVal(root, root->values[1]);
         newNode->children[2] = createNode(root->values[1]);
         root = rmVal(root, root->values[1]);
@@ -154,16 +169,22 @@ Node* insert(Node* root, int value) {
 
     if(root->isLeaf){
         root = addVal(root, value);
-    }
-    
-    if(root->numOfVals > 2){
-        root = splitNode(root, -1);
+        if(root->numOfVals > 2){
+            root = splitNode(root, -1);
+        }
+        return root;
     }
 
     // go deeper
-    // if(value < root->values[0]){
-    //     root->children[0] = insert
-    // }
+    if(value < root->values[0]){
+        root->children[0] = insert(root->children[0], value);
+    }
+    else if((root->numOfVals > 3) && (value < root->values[1])){
+        root->children[1] = insert(root->children[1], value);
+    }
+    else{ // value > root.values[1]
+        root->children[2] = insert(root->children[2], value);
+    }
 
     return root;
 }
