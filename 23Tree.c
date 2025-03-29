@@ -23,6 +23,7 @@ typedef struct Node {
 Node* createNode(int value);
 Node* addVal(Node* root, int value);
 Node* rmVal(Node* root, int value);
+Node* splitNode(Node* root, int childIndex);
 
 Node* insert(Node* root, int value);
 
@@ -35,7 +36,7 @@ int main() {
     Node* treeRoot = NULL;
     treeRoot = insert(treeRoot, 50);
     treeRoot = insert(treeRoot, 62);
-    // treeRoot = insert(treeRoot, 20);
+    treeRoot = insert(treeRoot, 69);
     // root = insert(root, 5);
     
     printTree(treeRoot, 0, STRUCTURE);
@@ -122,6 +123,32 @@ Node* rmVal(Node* root, int value){
     return root;
 }
 
+Node* splitNode(Node* root, int childIndex){
+    switch (childIndex)
+    {
+    case -1: // not child but root
+        Node* newNode = createNode(root->values[1]);
+        root = rmVal(root, root->values[1]);
+        newNode->children[2] = createNode(root->values[1]);
+        root = rmVal(root, root->values[1]);
+        newNode->children[0] = root;
+        return newNode;
+        break;
+    
+    case 0:
+        break;
+
+    case 1:
+        break;
+
+    case 2:
+        break;
+
+    default:
+        break;
+    }
+}
+
 Node* insert(Node* root, int value) {
     if (root == NULL) return createNode(value);
 
@@ -129,21 +156,16 @@ Node* insert(Node* root, int value) {
         root = addVal(root, value);
     }
     
-    // // root has empty space
-    // if (root->numOfVals < 2) {
-    //     // Insert value into the correct position in the node
-    //     if (value < root->values[0]) {
-    //         root->values[1] = root->values[0];
-    //         root->values[0] = value;
-    //     } else {
-    //         root->values[1] = value;
-    //     }
-    //     root->numOfVals++;
-    // } else {
-    //     // Tree split handling required (not implemented here)
-    //     printf("Node is full. Splitting required!\n");
+    if(root->numOfVals > 2){
+        root = splitNode(root, -1);
+    }
+
+    // go deeper
+    // if(value < root->values[0]){
+    //     root->children[0] = insert
     // }
-    // return root;
+
+    return root;
 }
 
 int findNode(Node* root, int value) {
