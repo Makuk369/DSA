@@ -35,6 +35,9 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod);
 int main() {
     Node* treeRoot = NULL;
     treeRoot = insertNode(treeRoot, 50);
+    printf("----- 50 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
 
     treeRoot = insertNode(treeRoot, 62);
     printf("----- 62 -----\n");
@@ -55,6 +58,16 @@ int main() {
     printf("----- 31 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
+
+    treeRoot = insertNode(treeRoot, 25);
+    printf("----- 25 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
+
+    // treeRoot = insertNode(treeRoot, 15);
+    // printf("----- 15 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
     
     // int value = 10;
     // printf("Search %d: %s\n", value, findNode(treeRoot, value) ? "Found" : "Not Found");
@@ -141,9 +154,23 @@ Node* splitNode(Node* root, int childIndex){
     if(childIndex == -1){ // not child but root
         Node* newNode = createNode(root->values[1]);
         newNode->isLeaf = false;
+
         root = rmVal(root, root->values[1]);
+        
         newNode->children[2] = createNode(root->values[1]);
         root = rmVal(root, root->values[1]);
+
+        if((root->children[1] != NULL) && (root->children[2] != NULL)){
+            newNode->children[2]->children[0] = root->children[1];
+            newNode->children[2]->children[2] = root->children[2];
+    
+            root->children[1]->values[0] = root->children[0]->values[1];
+            root->children[1] = rmVal(root->children[1], root->children[1]->values[1]);
+    
+            root->children[2] = root->children[1];
+            root->children[1] = NULL;
+        }
+
         newNode->children[0] = root;
         return newNode;
     } 
@@ -162,34 +189,44 @@ Node* splitNode(Node* root, int childIndex){
             root->children[1] = newNode;
             return root;
         }
+        else{ // has middle child (also means root.numOfVals == 2)
+            root = addVal(root, fullNode->values[1]);
+            fullNode = rmVal(fullNode, fullNode->values[1]);
+            return root;
+        }
     }
 }
 
 Node* insertNode(Node* root, int value) {
     if (root == NULL) return createNode(value);
+    
+    if(root->isLeaf == false){
+        // go deeper
+        if(value < root->values[0]){
+            root->children[0] = insertNode(root->children[0], value);
+        }
+        else if((root->numOfVals > 3) && (value < root->values[1])){
+            root->children[1] = insertNode(root->children[1], value);
+        }
+        else{ // value > root.values[1]
+            root->children[2] = insertNode(root->children[2], value);
+        }
 
-    if(root->numOfVals > 2){
-        root = splitNode(root, -1);
+        if(root->children[0]->numOfVals > 2){
+            root = splitNode(root, 0);
+    
+            if(root->numOfVals > 2){
+                root = splitNode(root, -1);
+            }
+        }
     }
-
+    
     if(root->isLeaf){
         root = addVal(root, value);
-        return root;
     }
-
-    // go deeper
-    if(value < root->values[0]){
-        root->children[0] = insertNode(root->children[0], value);
-    }
-    else if((root->numOfVals > 3) && (value < root->values[1])){
-        root->children[1] = insertNode(root->children[1], value);
-    }
-    else{ // value > root.values[1]
-        root->children[2] = insertNode(root->children[2], value);
-    }
-
-    if(root->children[0]->numOfVals > 2){
-        root = splitNode(root, 0);
+    
+    if(root->numOfVals > 2){
+        root = splitNode(root, -1);
     }
 
     return root;
@@ -232,11 +269,17 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod) {
         }
     
         indent(level);
-        if(root->numOfVals == 2){
+        if(root->numOfVals == 1){
+            printf("values = %d%s\n", root->values[0], root->isLeaf ? " - leaf" : "");
+        }
+        else if(root->numOfVals == 2){
             printf("values = %d, %d%s\n", root->values[0], root->values[1], root->isLeaf ? " - leaf" : "");
         }
         else{
-            printf("values = %d%s\n", root->values[0], root->isLeaf ? " - leaf" : "");
+            #if ERROR_PRINT == 1
+            printf("print ERROR 3 values in node");
+            exit(1);
+            #endif
         }
         
     
