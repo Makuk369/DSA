@@ -25,7 +25,7 @@ Node* addVal(Node* root, int value);
 Node* rmVal(Node* root, int value);
 Node* splitNode(Node* root, int childIndex);
 
-Node* insert(Node* root, int value);
+Node* insertNode(Node* root, int value);
 
 int findNode(Node* root, int value);
 
@@ -34,27 +34,27 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod);
 
 int main() {
     Node* treeRoot = NULL;
-    treeRoot = insert(treeRoot, 50);
+    treeRoot = insertNode(treeRoot, 50);
 
-    treeRoot = insert(treeRoot, 62);
+    treeRoot = insertNode(treeRoot, 62);
     printf("----- 62 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    treeRoot = insert(treeRoot, 69);
+    treeRoot = insertNode(treeRoot, 69);
     printf("----- 69 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    treeRoot = insert(treeRoot, 43);
+    treeRoot = insertNode(treeRoot, 43);
     printf("----- 43 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    // treeRoot = insert(treeRoot, 80);
-    // printf("----- 80 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
+    treeRoot = insertNode(treeRoot, 31);
+    printf("----- 31 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
     
     // int value = 10;
     // printf("Search %d: %s\n", value, findNode(treeRoot, value) ? "Found" : "Not Found");
@@ -138,9 +138,7 @@ Node* rmVal(Node* root, int value){
 }
 
 Node* splitNode(Node* root, int childIndex){
-    switch (childIndex)
-    {
-    case -1: // not child but root
+    if(childIndex == -1){ // not child but root
         Node* newNode = createNode(root->values[1]);
         newNode->isLeaf = false;
         root = rmVal(root, root->values[1]);
@@ -148,42 +146,50 @@ Node* splitNode(Node* root, int childIndex){
         root = rmVal(root, root->values[1]);
         newNode->children[0] = root;
         return newNode;
-        break;
-    
-    case 0:
-        break;
+    } 
+    else{
+        Node* fullNode = root->children[childIndex];
+        
+        if(root->children[1] == NULL){ // does not have middle child
+            Node* newNode = createNode(fullNode->values[2]);
+            newNode->isLeaf = fullNode->isLeaf;
 
-    case 1:
-        break;
+            root = addVal(root, fullNode->values[1]);
 
-    case 2:
-        break;
-
-    default:
-        break;
+            fullNode = rmVal(fullNode, fullNode->values[fullNode->numOfVals - 1]);
+            fullNode = rmVal(fullNode, fullNode->values[fullNode->numOfVals - 1]);
+            
+            root->children[1] = newNode;
+            return root;
+        }
     }
 }
 
-Node* insert(Node* root, int value) {
+Node* insertNode(Node* root, int value) {
     if (root == NULL) return createNode(value);
+
+    if(root->numOfVals > 2){
+        root = splitNode(root, -1);
+    }
 
     if(root->isLeaf){
         root = addVal(root, value);
-        if(root->numOfVals > 2){
-            root = splitNode(root, -1);
-        }
         return root;
     }
 
     // go deeper
     if(value < root->values[0]){
-        root->children[0] = insert(root->children[0], value);
+        root->children[0] = insertNode(root->children[0], value);
     }
     else if((root->numOfVals > 3) && (value < root->values[1])){
-        root->children[1] = insert(root->children[1], value);
+        root->children[1] = insertNode(root->children[1], value);
     }
     else{ // value > root.values[1]
-        root->children[2] = insert(root->children[2], value);
+        root->children[2] = insertNode(root->children[2], value);
+    }
+
+    if(root->children[0]->numOfVals > 2){
+        root = splitNode(root, 0);
     }
 
     return root;
@@ -227,10 +233,10 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod) {
     
         indent(level);
         if(root->numOfVals == 2){
-            printf("values = %d, %d\n", root->values[0], root->values[1]);
+            printf("values = %d, %d%s\n", root->values[0], root->values[1], root->isLeaf ? " - leaf" : "");
         }
         else{
-            printf("values = %d\n", root->values[0]);
+            printf("values = %d%s\n", root->values[0], root->isLeaf ? " - leaf" : "");
         }
         
     
