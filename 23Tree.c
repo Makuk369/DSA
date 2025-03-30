@@ -27,11 +27,12 @@ typedef struct Node {
 
 Node* createNode(int value);
 Node* addVal(Node* root, int value);
-Node* rmVal(Node* root, int value);
+Node* rmVal(Node* root, int value, bool allowZero);
 Node* splitRootNode(Node* root);
 Node* splitChildNode(Node* root, int childIndex);
 
 Node* insertNode(Node* root, int value);
+Node* deleteNode(Node* root, int value);
 
 int findNode(Node* root, int value);
 
@@ -46,8 +47,8 @@ int main() {
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    treeRoot = insertNode(treeRoot, 2);
-    printf("----- 2 -----\n");
+    treeRoot = insertNode(treeRoot, 5);
+    printf("----- 5 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
@@ -56,35 +57,40 @@ int main() {
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    treeRoot = insertNode(treeRoot, 5);
-    printf("----- 5 -----\n");
+    treeRoot = deleteNode(treeRoot, 10);
+    printf("----- DEL 10 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    treeRoot = insertNode(treeRoot, 30);
-    printf("----- 30 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
+    // treeRoot = insertNode(treeRoot, 40);
+    // printf("----- 40 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
 
-    treeRoot = insertNode(treeRoot, 40);
-    printf("----- 40 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
+    // treeRoot = insertNode(treeRoot, 30);
+    // printf("----- 30 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
 
-    treeRoot = insertNode(treeRoot, 8);
-    printf("----- 8 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
+    // treeRoot = insertNode(treeRoot, 40);
+    // printf("----- 40 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
 
-    treeRoot = insertNode(treeRoot, 50);
-    printf("----- 50 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
+    // treeRoot = insertNode(treeRoot, 8);
+    // printf("----- 8 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
 
-    treeRoot = insertNode(treeRoot, 60);
-    printf("----- 60 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
+    // treeRoot = insertNode(treeRoot, 50);
+    // printf("----- 50 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
+
+    // treeRoot = insertNode(treeRoot, 60);
+    // printf("----- 60 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
     
     // int value = 10;
     // printf("Search %d: %s\n", value, findNode(treeRoot, value) ? "Found" : "Not Found");
@@ -134,15 +140,18 @@ Node* addVal(Node* root, int value){
     return root;
 }
 
-Node* rmVal(Node* root, int value){
-    if(root->numOfVals < 2){
+Node* rmVal(Node* root, int value, bool allowZero){
+    if((root->numOfVals < 2) && (allowZero == false)){
         #if ERROR_PRINT == 1
         printf("rmVal ERROR cannot remove - numOfVals would be 0\n");
         #endif
         exit(1);
     }
-
-    if(value == root->values[0]){
+    
+    if((root->numOfVals < 2) && (allowZero == true)){
+        root->values[0] = 0;
+    }
+    else if(value == root->values[0]){
         root->values[0] = root->values[1];
         root->values[1] = 0;
     }
@@ -206,10 +215,10 @@ Node* splitChildNode(Node* root, int childIndex){
 
     if(root->children[MIDDLE] != NULL){
         root = addVal(root, fullNode->values[1]);
-        fullNode = rmVal(fullNode, fullNode->values[1]);
+        fullNode = rmVal(fullNode, fullNode->values[1], false);
     
         Node* newNode = createNode(fullNode->values[1]);
-        fullNode = rmVal(fullNode, fullNode->values[1]);
+        fullNode = rmVal(fullNode, fullNode->values[1], false);
         // if(root->values[0] > fullNode->values[1]){
         //     newNode = createNode(fullNode->values[1]);
         //     fullNode = rmVal(fullNode, fullNode->values[1]);
@@ -225,16 +234,16 @@ Node* splitChildNode(Node* root, int childIndex){
     }
     else{ // middle child == NULL (means root has only one val)
         root = addVal(root, fullNode->values[1]);
-        fullNode = rmVal(fullNode, fullNode->values[1]);
+        fullNode = rmVal(fullNode, fullNode->values[1], false);
     
         Node* newNode = NULL;
         if(childIndex == LEFT){
             newNode = createNode(fullNode->values[1]);
-            fullNode = rmVal(fullNode, fullNode->values[1]);
+            fullNode = rmVal(fullNode, fullNode->values[1], false);
         }
         else{ // childIndex == RIGHT
             newNode = createNode(fullNode->values[0]);
-            fullNode = rmVal(fullNode, fullNode->values[0]);
+            fullNode = rmVal(fullNode, fullNode->values[0], false);
         }
         
         root->children[MIDDLE] = newNode;
@@ -290,6 +299,74 @@ Node* insertNode(Node* root, int value) {
     return root;
 }
 
+// when called from treeRoot chdir should be LEFT
+Node* deleteNode(Node* root, int value){
+    // value not found
+    if(root == NULL){
+        return root;
+    }
+
+    // value found and is the first one
+    if(root->values[0] == value){
+        // root doesn't have child to swap with
+        if((root->children[LEFT] == NULL) && (root->children[LEFT]->numOfVals != 0)){
+            root = rmVal(root, value, true);
+        }
+
+        Node* swapNode = root;
+
+        // go LRRR...
+        root = root->children[LEFT];
+        while((root->children[RIGHT] != NULL) && (root->children[RIGHT]->numOfVals != 0)){
+            root = root->children[RIGHT];
+        }
+
+        // copy and remove val
+        if(root->numOfVals == 2){
+            swapNode->values[0] = root->values[1];
+            root = rmVal(root, root->values[1], true);
+        }
+        else{ // root->numOfVals == 1
+            swapNode->values[0] = root->values[0];
+            root = rmVal(root, root->values[0], true);
+        }
+        return swapNode;
+    }
+    else if(root->numOfVals == 2 && root->values[1] == value){ // value found and is the second one
+        // root doesn't have child to swap with
+        if((root->children[RIGHT] == NULL) && (root->children[RIGHT]->numOfVals != 0)){
+            root = rmVal(root, value, true);
+        }
+
+        Node* swapNode = root;
+
+        // go RLLL...
+        root = root->children[RIGHT];
+        while((root->children[LEFT] != NULL) && (root->children[LEFT]->numOfVals != 0)){
+            root = root->children[LEFT];
+        }
+
+        // copy and remove val
+        swapNode->values[0] = root->values[0];
+        root = rmVal(root, root->values[0], true);
+
+        return swapNode;
+    }
+
+    // go deeper
+    if(value < root->values[0]){
+        root->children[LEFT] = deleteNode(root->children[LEFT], value);
+    }
+    else if((root->numOfVals > 1) && (value < root->values[1])){
+        root->children[MIDDLE] = deleteNode(root->children[MIDDLE], value);
+    }
+    else{ // value > root.values[1]
+        root->children[RIGHT] = deleteNode(root->children[RIGHT], value);
+    }
+
+    return root;
+}
+
 int findNode(Node* root, int value) {
     if (root == NULL) return 0;
     if (root->values[0] == value || (root->numOfVals == 2 && root->values[1] == value)) return 1;
@@ -308,7 +385,7 @@ void indent(int tabCount){
 
 void printTree(Node* root, int level, TraversalMethod traversalMethod) {
     if(traversalMethod == INORDER){
-        if (root == NULL) return;
+        if ((root == NULL) || (root->numOfVals == 0)) return;
 
         printTree(root->children[0], 0, INORDER);
         printf("%d ", root->values[0]);
@@ -320,7 +397,7 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod) {
         }
     }
     else if(traversalMethod == STRUCTURE){
-        if(root == NULL){
+        if((root == NULL) || (root->numOfVals == 0)){
             indent(level);
             printf("NULL\n");
             return;
