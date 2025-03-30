@@ -57,25 +57,20 @@ int main() {
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    treeRoot = deleteNode(treeRoot, 10);
-    printf("----- DEL 10 -----\n");
+    treeRoot = insertNode(treeRoot, 40);
+    printf("----- 40 -----\n");
     printTree(treeRoot, 0, STRUCTURE);
     printf("\n");
 
-    // treeRoot = insertNode(treeRoot, 40);
-    // printf("----- 40 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
+    treeRoot = insertNode(treeRoot, 30);
+    printf("----- 30 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
 
-    // treeRoot = insertNode(treeRoot, 30);
-    // printf("----- 30 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
-
-    // treeRoot = insertNode(treeRoot, 40);
-    // printf("----- 40 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
+    treeRoot = insertNode(treeRoot, 15);
+    printf("----- 15 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
 
     // treeRoot = insertNode(treeRoot, 8);
     // printf("----- 8 -----\n");
@@ -89,6 +84,16 @@ int main() {
 
     // treeRoot = insertNode(treeRoot, 60);
     // printf("----- 60 -----\n");
+    // printTree(treeRoot, 0, STRUCTURE);
+    // printf("\n");
+
+    treeRoot = deleteNode(treeRoot, 30);
+    printf("----- DEL 30 -----\n");
+    printTree(treeRoot, 0, STRUCTURE);
+    printf("\n");
+
+    // treeRoot = deleteNode(treeRoot, 10);
+    // printf("----- DEL 10 -----\n");
     // printTree(treeRoot, 0, STRUCTURE);
     // printf("\n");
     
@@ -309,8 +314,9 @@ Node* deleteNode(Node* root, int value){
     // value found and is the first one
     if(root->values[0] == value){
         // root doesn't have child to swap with
-        if((root->children[LEFT] == NULL) && (root->children[LEFT]->numOfVals != 0)){
+        if((root->children[LEFT] == NULL) || (root->children[LEFT]->numOfVals == 0)){
             root = rmVal(root, value, true);
+            return root;
         }
 
         Node* swapNode = root;
@@ -334,8 +340,9 @@ Node* deleteNode(Node* root, int value){
     }
     else if(root->numOfVals == 2 && root->values[1] == value){ // value found and is the second one
         // root doesn't have child to swap with
-        if((root->children[RIGHT] == NULL) && (root->children[RIGHT]->numOfVals != 0)){
+        if((root->children[RIGHT] == NULL) || (root->children[RIGHT]->numOfVals == 0)){
             root = rmVal(root, value, true);
+            return root;
         }
 
         Node* swapNode = root;
