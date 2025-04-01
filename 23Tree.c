@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <time.h> // only used for testing
 
 #define ERROR_PRINT 1
 
@@ -34,7 +35,7 @@ Node* splitChildNode(Node* root, int childIndex);
 Node* insertNode(Node* root, int value);
 Node* deleteNode(Node* root, int value);
 
-int findNode(Node* root, int value);
+bool findNode(Node* root, int value);
 
 void indent(int tabCount);
 void printTree(Node* root, int level, TraversalMethod traversalMethod);
@@ -42,63 +43,79 @@ void printTree(Node* root, int level, TraversalMethod traversalMethod);
 Node* treeRoot = NULL; // base of the tree
 
 int main() {
-    treeRoot = insertNode(treeRoot, 10);
-    printf("----- 10 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
+    int inVal = 0;
+    unsigned int numsToAdd = 0;
+    unsigned int numsToDel = 0;
+    unsigned int numsToFind = 0;
 
-    treeRoot = insertNode(treeRoot, 5);
-    printf("----- 5 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
+    struct timespec start, end;
+    double cpuTimeUsed;
 
-    treeRoot = insertNode(treeRoot, 20);
-    printf("----- 20 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
+    FILE *timesFile;
+    timesFile = fopen("Testing/preciseTimes.txt", "w");
+    if (timesFile == NULL) {
+        printf("Error opening file!\n");
+    }
 
-    treeRoot = insertNode(treeRoot, 40);
-    printf("----- 40 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
-
-    treeRoot = insertNode(treeRoot, 30);
-    printf("----- 30 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
-
-    treeRoot = insertNode(treeRoot, 15);
-    printf("----- 15 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
-
-    // treeRoot = insertNode(treeRoot, 8);
-    // printf("----- 8 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
-
-    // treeRoot = insertNode(treeRoot, 50);
-    // printf("----- 50 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
-
-    // treeRoot = insertNode(treeRoot, 60);
-    // printf("----- 60 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
-
-    treeRoot = deleteNode(treeRoot, 30);
-    printf("----- DEL 30 -----\n");
-    printTree(treeRoot, 0, STRUCTURE);
-    printf("\n");
-
-    // treeRoot = deleteNode(treeRoot, 10);
-    // printf("----- DEL 10 -----\n");
-    // printTree(treeRoot, 0, STRUCTURE);
-    // printf("\n");
+    unsigned int repeats = 0;
+    unsigned int totalInsertNums = 0;
+    unsigned int totalDeleteNums = 0;
+    unsigned int totalFindNums = 0;
+    bool found = false;
+    scanf("%u", &repeats);
     
-    // int value = 10;
-    // printf("Search %d: %s\n", value, findNode(treeRoot, value) ? "Found" : "Not Found");
+    for (size_t r = 0; r < repeats; r++){
+        // printf("---------- INSERTING: ----------\n");
+        scanf("%u", &numsToAdd);
+        totalInsertNums += numsToAdd;
+        clock_gettime(CLOCK_MONOTONIC, &start);  // Start time
+        for (size_t i = 0; i < numsToAdd; i++)
+        {
+            scanf("%d", &inVal);
+            treeRoot = insertNode(treeRoot, inVal);
+        }
+        clock_gettime(CLOCK_MONOTONIC, &end);    // End time
+        cpuTimeUsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1E9;
+        fprintf(timesFile, "insert: %u %f\n", totalInsertNums, cpuTimeUsed);
+        // printTree(treeRoot, 0, INORDER);
+    }
+    for (size_t r = 0; r < repeats; r++)
+    {
+        // printf("---------- DELETING: ----------\n");
+        // printf("\n");
+        scanf("%u", &numsToDel);
+        totalDeleteNums += numsToDel;
+        clock_gettime(CLOCK_MONOTONIC, &start);  // Start time
+        for (size_t i = 0; i < numsToDel; i++)
+        {
+            scanf("%d", &inVal);
+            treeRoot = deleteNode(treeRoot, inVal);
+        }
+        clock_gettime(CLOCK_MONOTONIC, &end);    // End time
+        cpuTimeUsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1E9;
+        fprintf(timesFile, "delete: %u %f\n", totalDeleteNums, cpuTimeUsed);
+        // printTree(treeRoot, 0, INORDER);
+    }
+    for (size_t r = 0; r < repeats; r++)
+    {
+        // printf("---------- FINDING: ----------\n");
+        printf("\n");
+        scanf("%u", &numsToFind);
+        totalFindNums += numsToFind;
+        clock_gettime(CLOCK_MONOTONIC, &start);  // Start time
+        for (size_t i = 0; i < numsToFind; i++)
+        {
+            scanf("%d", &inVal);
+            found = findNode(treeRoot, inVal);
+            // printf("%d - %s\n", inVal, findNode(treeRoot, inVal) ? "true" : "false");
+        }
+        clock_gettime(CLOCK_MONOTONIC, &end);    // End time
+        cpuTimeUsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1E9;
+        fprintf(timesFile, "find: %u %f\n", totalFindNums, cpuTimeUsed);
+    }
+    fclose(timesFile);
+
+    free(treeRoot);
     
     return 0;
 }
@@ -304,10 +321,12 @@ Node* insertNode(Node* root, int value) {
     return root;
 }
 
-// when called from treeRoot chdir should be LEFT
 Node* deleteNode(Node* root, int value){
     // value not found
     if(root == NULL){
+        #if ERROR_PRINT == 1
+        printf("delete ERROR value not found\n");
+        #endif
         return root;
     }
 
@@ -374,9 +393,9 @@ Node* deleteNode(Node* root, int value){
     return root;
 }
 
-int findNode(Node* root, int value) {
-    if (root == NULL) return 0;
-    if (root->values[0] == value || (root->numOfVals == 2 && root->values[1] == value)) return 1;
+bool findNode(Node* root, int value) {
+    if (root == NULL) return false;
+    if (root->values[0] == value || (root->numOfVals == 2 && root->values[1] == value)) return true;
     
     if (value < root->values[0]) return findNode(root->children[0], value);
     else if (root->numOfVals == 1 || value < root->values[1]) return findNode(root->children[1], value);
@@ -392,15 +411,27 @@ void indent(int tabCount){
 
 void printTree(Node* root, int level, TraversalMethod traversalMethod) {
     if(traversalMethod == INORDER){
-        if ((root == NULL) || (root->numOfVals == 0)) return;
+        if((root == NULL) || (root->numOfVals == 0)){
+            return;
+        }
 
-        printTree(root->children[0], 0, INORDER);
-        printf("%d ", root->values[0]);
-        printTree(root->children[1], 0, INORDER);
-
-        if (root->numOfVals == 2) {
-            printf("%d ", root->values[1]);
-            printTree(root->children[2], 0, INORDER);
+        if(root->isLeaf == true){
+            printf("%d\n", root->values[0]);
+            if(root->numOfVals == 2){
+                printf("%d\n", root->values[1]);
+            }
+        }
+        else if(root->children[MIDDLE] == NULL){
+            printTree(root->children[LEFT], level, INORDER);
+            printf("%d\n", root->values[0]);
+            printTree(root->children[RIGHT], level, INORDER);
+        }
+        else{
+            printTree(root->children[LEFT], level, INORDER);
+            printf("%d\n", root->values[0]);
+            printTree(root->children[MIDDLE], level, INORDER);
+            printf("%d\n", root->values[1]);
+            printTree(root->children[RIGHT], level, INORDER);
         }
     }
     else if(traversalMethod == STRUCTURE){

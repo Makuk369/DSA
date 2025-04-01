@@ -23,7 +23,7 @@ else: # repeats == 0 (aby to aspon raz prebehlo)
 # ---------- Inserting ---------- 
 for r in range(1, repeats+1):
     inputFile.write(f"\n{inserts}\n")
-    for num in range((inserts*r)-inserts, inserts*r):
+    for num in range((inserts*r)-inserts+1, inserts*r+1):
         # print(f"insert progress = {num+1}/{inserts}")
         numList[r-1].append(num)
         expOutputFile.write(f"{num}\n")
@@ -54,7 +54,7 @@ for r in range(1, repeats+1):
     inputFile.write(f"\n{finds}\n")
     for num in range(finds):
         # print(f"finds progress = {num+1}/{finds}")
-        randNum = random.randint((inserts*r)-inserts, inserts*r)
+        randNum = random.randint(1, inserts*repeats+1)
         inputFile.write(f"{randNum}\n")
 
         if(randNum in numList[r-1]):
