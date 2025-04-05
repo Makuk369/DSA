@@ -1,7 +1,13 @@
-#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
+#include <time.h> // only used for testing
+
+#define ERROR_PRINT 1
+
+#define FNV_OFFSET 0xcbf29ce484222325
+#define FNV_PRIME 0x100000001b3
 
 typedef struct entry {
     char* key;
@@ -14,7 +20,11 @@ typedef struct {
 
 size_t htSize = 0;
 
+unsigned int nextPrime(unsigned int n);
+void flush();
+
 unsigned int hash(const char *key);
+unsigned int hash2(const char *key);
 
 Entry* createEntry(const char *key, const char *value);
 
@@ -29,34 +39,159 @@ void deleteFromHT(HashTable *hashtable, const char *key);
 void printHT(HashTable *hashtable);
 
 int main(int argc, char **argv) {
-    htSize = 8;
+
+    int bufferSize = 10;
+    char inVal[bufferSize];
+    unsigned int numsToAdd = 0;
+    unsigned int numsToDel = 0;
+    unsigned int numsToFind = 0;
+
+    struct timespec start, end;
+    double cpuTimeUsed;
+
+    FILE *timesFile;
+    timesFile = fopen("Testing/preciseTimes.txt", "w");
+    if (timesFile == NULL) {
+        printf("Error opening file!\n");
+    }
+
+    unsigned int repeats = 0;
+    unsigned int totalInsertNums = 0;
+    unsigned int totalDeleteNums = 0;
+    unsigned int totalFindNums = 0;
+    scanf("%u", &repeats);
+
+    scanf("%u", &numsToAdd);
+    flush();
+    htSize = nextPrime((repeats * numsToAdd) + (repeats * numsToAdd)/100);
     HashTable *ht = createHT();
 
-    insertToHT(ht, "123", "em");
-    insertToHT(ht, "456", "russian");
-    insertToHT(ht, "789", "pizza");
-    insertToHT(ht, "741", "doge");
-    insertToHT(ht, "852", "pyro");
-    insertToHT(ht, "86", "joost");
-    insertToHT(ht, "987", "kalix");
-
+    for (size_t r = 0; r < repeats; r++)
+    {
+        printf("---------- INSERTING: ----------\n");
+        if(r != 0) {
+            scanf("%u", &numsToAdd); // skip first
+            flush();
+        }
+        totalInsertNums += numsToAdd;
+        clock_gettime(CLOCK_MONOTONIC, &start);  // Start time
+        for (size_t i = 0; i < numsToAdd; i++)
+        {
+            fgets(inVal, bufferSize, stdin);
+            insertToHT(ht, inVal, inVal);
+        }
+        clock_gettime(CLOCK_MONOTONIC, &end);    // End time
+        cpuTimeUsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1E9;
+        fprintf(timesFile, "insert: %u %f\n", totalInsertNums, cpuTimeUsed);
+    }
     printHT(ht);
+    for (size_t r = 0; r < repeats; r++)
+    {
+        printf("---------- DELETING: ----------\n");
+        printf("\n");
+        scanf("%u", &numsToDel);
+        flush();
+        totalDeleteNums += numsToDel;
+        clock_gettime(CLOCK_MONOTONIC, &start);  // Start time
+        for (size_t i = 0; i < numsToDel; i++)
+        {
+            fgets(inVal, bufferSize, stdin);
+            deleteFromHT(ht, inVal);
+        }
+        clock_gettime(CLOCK_MONOTONIC, &end);    // End time
+        cpuTimeUsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1E9;
+        fprintf(timesFile, "delete: %u %f\n", totalDeleteNums, cpuTimeUsed);
+    }
+    printHT(ht);
+    for (size_t r = 0; r < repeats; r++)
+    {
+        printf("---------- FINDING: ----------\n");
+        printf("\n");
+        scanf("%u", &numsToFind);
+        flush();
+        totalFindNums += numsToFind;
+        clock_gettime(CLOCK_MONOTONIC, &start);  // Start time
+        for (size_t i = 0; i < numsToFind; i++)
+        {
+            fgets(inVal, bufferSize, stdin);
+            char* getVal = getFromHT(ht, inVal);
+            if(getVal == NULL) {
+                printf("%s - false\n", inVal);
+            }
+            else if(strcmp(getFromHT(ht, inVal), inVal) == 0){
+                printf("%s - true\n", inVal);
+            }
+            else{
+                printf("%s - false\n", inVal);
+            }
+        }
+        clock_gettime(CLOCK_MONOTONIC, &end);    // End time
+        cpuTimeUsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1E9;
+        fprintf(timesFile, "find: %u %f\n", totalFindNums, cpuTimeUsed);
+    }
+    fclose(timesFile);
+
+    // htSize = 11; // musi byt prime num
+    // printf("next prime from %u is %u\n", 90, nextPrime(90));
+    // HashTable *ht = createHT();
+
+    // insertToHT(ht, "123", "em");
+    // insertToHT(ht, "456", "russian");
+    // insertToHT(ht, "789", "pizza");
+    // insertToHT(ht, "741", "doge");
+    // insertToHT(ht, "852", "pyro");
+    // insertToHT(ht, "86", "joost");
+    // // insertToHT(ht, "987", "kalix");
+
+    // printHT(ht);
 
     return 0;
 }
 
-unsigned int hash(const char *key) {
-    unsigned long int value = 0;
-    unsigned int key_len = strlen(key);
+int isPrime(int n) {
+    if (n % 2 == 0) return 0;
 
-    for (size_t i = 0; i < key_len; ++i) {
-        value = value * 37 + key[i];
+    for (int i = 3; i <= n/2; i += 2) {
+        if (n % i == 0)
+            return 0;
     }
+    return 1;
+}
+unsigned int nextPrime(unsigned int n){
+    if (n <= 2) return 2;
 
-    // make sure value is 0 <= value < htSize
-    value = value % htSize;
+    while (isPrime(n) == 0) {
+        n++;
+    }
+    return n;
+}
 
-    return value;
+void flush(){
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+        ;
+}
+
+// uses fnv1
+unsigned int hash(const char *key) {
+    uint64_t hashValue = FNV_OFFSET;
+    for (size_t i = 0; i < strlen(key); i++)
+    {
+        hashValue *= FNV_PRIME;
+        hashValue ^= key[i];
+    }
+    return hashValue % htSize;
+}
+
+// uses fnv1a
+unsigned int hash2(const char *key){
+    uint64_t hashValue = FNV_OFFSET;
+    for (size_t i = 0; i < strlen(key); i++)
+    {
+        hashValue ^= key[i];
+        hashValue *= FNV_PRIME;
+    }
+    return hashValue % htSize;
 }
 
 Entry* createEntry(const char* key, const char* value) {
@@ -86,29 +221,31 @@ HashTable* createHT() {
 }
 
 void insertToHT(HashTable *hashtable, const char *key, const char *value) {
-    unsigned int slot = hash(key);
+    unsigned int x = 1;
+    unsigned int keyHash = hash(key);
+    unsigned int index = keyHash;
 
-    // try to look up an entry set
-    Entry *entry = hashtable->entries[slot];
-
-    // no entry means slot empty, insert immediately
-    if (entry == NULL) {
-        hashtable->entries[slot] = createEntry(key, value);
-        return;
-    }
-
-    // walk through each entry until either the end is
-    // reached or a matching key is found
-    while (entry != NULL) {
-        // check key
-        if (strcmp(entry->key, key) == 0) {
-            // match found, replace value
-            free(entry->value);
-            entry->value = malloc(strlen(value) + 1);
-            strcpy(entry->value, value);
+    while(hashtable->entries[index] != NULL){
+        printf("collision - %s\n", key);
+        // check if has same key (yes == replace value)
+        if (strcmp(hashtable->entries[index]->key, key) == 0){
+            free(hashtable->entries[index]->value);
+            hashtable->entries[index]->value = malloc(strlen(value) + 1);
+            strcpy(hashtable->entries[index]->value, value);
             return;
         }
+        index = (keyHash + x * hash2(key)) % htSize;
+        x++;
+
+        #if ERROR_PRINT == 1
+        if(x > 10000) {
+            printf("insert error");
+            break;
+        }
+        #endif
     }
+
+    hashtable->entries[index] = createEntry(key, value);
 }
 
 char* getFromHT(HashTable *hashtable, const char *key) {

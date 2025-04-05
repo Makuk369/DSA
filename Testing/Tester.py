@@ -37,7 +37,7 @@ def run_exe_with_io(exe_path, input_txt, output_txt):
             output_file.write("\nERROR OUTPUT:\n" + stderr)
 
 # Example usage
-exe_path = "23Tree.exe"
+exe_path = "HashTable.exe"
 input_txt = "Testing\\input.txt"
 output_txt = "Testing\\output.txt"
 times_txt = "Testing\\times.txt"
