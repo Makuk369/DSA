@@ -238,8 +238,8 @@ void insertToHT(HashTable *hashtable, const char *key, const char *value) {
         x++;
 
         #if ERROR_PRINT == 1
-        if(x > 10000) {
-            printf("insert error");
+        if(x > htSize) {
+            printf("insert error - no free slot\n");
             break;
         }
         #endif
@@ -249,22 +249,30 @@ void insertToHT(HashTable *hashtable, const char *key, const char *value) {
 }
 
 char* getFromHT(HashTable *hashtable, const char *key) {
-    unsigned int slot = hash(key);
+    unsigned int x = 1;
+    unsigned int keyHash = hash(key);
+    unsigned int index = keyHash;
 
-    // try to find a valid slot
-    Entry *entry = hashtable->entries[slot];
+    // should not be NULL
+    while(hashtable->entries[index] != NULL){
+        // check if has same key (yes == found)
+        if (strcmp(hashtable->entries[index]->key, key) == 0){
+            return hashtable->entries[index]->value;
+        }
+        // if no move to another index
+        index = (keyHash + x * hash2(key)) % htSize;
+        x++;
 
-    // no slot means no entry
-    if (entry == NULL) {
-        return NULL;
+        // has checked every index
+        if(x > htSize) {
+            #if ERROR_PRINT == 1
+            printf("delete error - key not found\n");
+            #endif
+            break;
+        }
     }
 
-    // return value if found
-    if (strcmp(entry->key, key) == 0) {
-        return entry->value;
-    }
-
-    // reaching here means there was entry but no key match
+    // did not find
     return NULL;
 }
 
