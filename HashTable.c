@@ -63,12 +63,13 @@ int main(int argc, char **argv) {
 
     scanf("%u", &numsToAdd);
     flush();
-    htSize = nextPrime((repeats * numsToAdd) + (repeats * numsToAdd)/100);
+    htSize = nextPrime((repeats * numsToAdd)*1.2);
+    printf("htSize = %u\n", htSize);
     HashTable *ht = createHT();
 
     for (size_t r = 0; r < repeats; r++)
     {
-        printf("---------- INSERTING: ----------\n");
+        // printf("---------- INSERTING: ----------\n");
         if(r != 0) {
             scanf("%u", &numsToAdd); // skip first
             flush();
@@ -84,11 +85,11 @@ int main(int argc, char **argv) {
         cpuTimeUsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1E9;
         fprintf(timesFile, "insert: %u %f\n", totalInsertNums, cpuTimeUsed);
     }
-    printHT(ht);
+    // printHT(ht);
     for (size_t r = 0; r < repeats; r++)
     {
-        printf("---------- DELETING: ----------\n");
-        printf("\n");
+        // printf("---------- DELETING: ----------\n");
+        // printf("\n");
         scanf("%u", &numsToDel);
         flush();
         totalDeleteNums += numsToDel;
@@ -102,11 +103,11 @@ int main(int argc, char **argv) {
         cpuTimeUsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1E9;
         fprintf(timesFile, "delete: %u %f\n", totalDeleteNums, cpuTimeUsed);
     }
-    printHT(ht);
+    // printHT(ht);
     for (size_t r = 0; r < repeats; r++)
     {
-        printf("---------- FINDING: ----------\n");
-        printf("\n");
+        // printf("---------- FINDING: ----------\n");
+        // printf("\n");
         scanf("%u", &numsToFind);
         flush();
         totalFindNums += numsToFind;
@@ -115,15 +116,15 @@ int main(int argc, char **argv) {
         {
             fgets(inVal, bufferSize, stdin);
             char* getVal = getFromHT(ht, inVal);
-            if(getVal == NULL) {
-                printf("%s - false\n", inVal);
-            }
-            else if(strcmp(getFromHT(ht, inVal), inVal) == 0){
-                printf("%s - true\n", inVal);
-            }
-            else{
-                printf("%s - false\n", inVal);
-            }
+            // if(getVal == NULL) {
+            //     printf("%s - false\n", inVal);
+            // }
+            // else if(strcmp(getFromHT(ht, inVal), inVal) == 0){
+            //     printf("%s - true\n", inVal);
+            // }
+            // else{
+            //     printf("%s - false\n", inVal);
+            // }
         }
         clock_gettime(CLOCK_MONOTONIC, &end);    // End time
         cpuTimeUsed = (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1E9;
@@ -158,25 +159,29 @@ void flush(){
         ;
 }
 
-// uses fnv1
+// uses fnv1a
 unsigned int hash(const char *key) {
     uint64_t hashValue = FNV_OFFSET;
     for (size_t i = 0; i < strlen(key); i++)
     {
-        hashValue *= FNV_PRIME;
         hashValue ^= key[i];
+        hashValue *= FNV_PRIME;
+        printf("hval1 = %llu\n", hashValue);
     }
+    printf("hash1 = %u\n", hashValue % htSize);
     return hashValue % htSize;
 }
 
-// uses fnv1a
+// uses fnv1
 unsigned int hash2(const char *key){
     uint64_t hashValue = FNV_OFFSET;
     for (size_t i = 0; i < strlen(key); i++)
     {
-        hashValue ^= key[i];
         hashValue *= FNV_PRIME;
+        hashValue ^= key[i];
+        printf("hval2 = %llu\n", hashValue);
     }
+    printf("hash2 = %u\n", hashValue % htSize);
     return hashValue % htSize;
 }
 
@@ -212,7 +217,10 @@ void insertToHT(HashTable *hashtable, const char *key, const char *value) {
     unsigned int index = keyHash;
 
     while(hashtable->entries[index] != NULL){
-        printf("collision - %s\n", key);
+        #if ERROR_PRINT == 1
+        printf("collision - x = %u, key = %s", x, key);
+        printf("index %u occupied\n", index);
+        #endif
         // check if has same key (yes == replace value)
         if (strcmp(hashtable->entries[index]->key, key) == 0){
             free(hashtable->entries[index]->value);
@@ -221,6 +229,7 @@ void insertToHT(HashTable *hashtable, const char *key, const char *value) {
             return;
         }
         index = (keyHash + x * hash2(key)) % htSize;
+        printf("new index %u\n", index);
         x++;
 
         #if ERROR_PRINT == 1
