@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <time.h> // only used for testing
 
-#define ERROR_PRINT 1
+#define ERROR_PRINT 0
 
 #define FNV_OFFSET 0xcbf29ce484222325
 #define FNV_PRIME 0x100000001b3
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 
     scanf("%u", &numsToAdd);
     flush();
-    htSize = nextPrime((repeats * numsToAdd)*1.2);
+    htSize = nextPrime((repeats * numsToAdd)*1.25);
     printf("htSize = %u\n", htSize);
     HashTable *ht = createHT();
 
@@ -166,9 +166,9 @@ unsigned int hash(const char *key) {
     {
         hashValue ^= key[i];
         hashValue *= FNV_PRIME;
-        printf("hval1 = %llu\n", hashValue);
+        // printf("hval1 = %llu\n", hashValue);
     }
-    printf("hash1 = %u\n", hashValue % htSize);
+    // printf("hash1 = %u\n", hashValue % htSize);
     return hashValue % htSize;
 }
 
@@ -179,9 +179,9 @@ unsigned int hash2(const char *key){
     {
         hashValue *= FNV_PRIME;
         hashValue ^= key[i];
-        printf("hval2 = %llu\n", hashValue);
+        // printf("hval2 = %llu\n", hashValue);
     }
-    printf("hash2 = %u\n", hashValue % htSize);
+    // printf("hash2 = %u\n", hashValue % htSize);
     return hashValue % htSize;
 }
 
@@ -229,7 +229,7 @@ void insertToHT(HashTable *hashtable, const char *key, const char *value) {
             return;
         }
         index = (keyHash + x * hash2(key)) % htSize;
-        printf("new index %u\n", index);
+        // printf("new index %u\n", index);
         x++;
 
         #if ERROR_PRINT == 1
