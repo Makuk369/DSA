@@ -131,20 +131,6 @@ int main(int argc, char **argv) {
     }
     fclose(timesFile);
 
-    // htSize = 11; // musi byt prime num
-    // printf("next prime from %u is %u\n", 90, nextPrime(90));
-    // HashTable *ht = createHT();
-
-    // insertToHT(ht, "123", "em");
-    // insertToHT(ht, "456", "russian");
-    // insertToHT(ht, "789", "pizza");
-    // insertToHT(ht, "741", "doge");
-    // insertToHT(ht, "852", "pyro");
-    // insertToHT(ht, "86", "joost");
-    // // insertToHT(ht, "987", "kalix");
-
-    // printHT(ht);
-
     return 0;
 }
 
@@ -265,37 +251,46 @@ char* getFromHT(HashTable *hashtable, const char *key) {
 
         // has checked every index
         if(x > htSize) {
-            #if ERROR_PRINT == 1
-            printf("delete error - key not found\n");
-            #endif
+            break;
+        }
+    }
+    
+    // did not find
+    #if ERROR_PRINT == 1
+    printf("get error - key not found\n");
+    #endif
+    return NULL;
+}
+
+void deleteFromHT(HashTable *hashtable, const char *key) {
+    unsigned int x = 1;
+    unsigned int keyHash = hash(key);
+    unsigned int index = keyHash;
+
+    // should not be NULL
+    while(hashtable->entries[index] != NULL){
+        // check if has same key (yes == delete)
+        if (strcmp(hashtable->entries[index]->key, key) == 0){
+            free(hashtable->entries[index]->key);
+            free(hashtable->entries[index]->value);
+            free(hashtable->entries[index]);
+            hashtable->entries[index] = NULL;
+            return;
+        }
+        // if no move to another index
+        index = (keyHash + x * hash2(key)) % htSize;
+        x++;
+
+        // has checked every index
+        if(x > htSize) {
             break;
         }
     }
 
     // did not find
-    return NULL;
-}
-
-void deleteFromHT(HashTable *hashtable, const char *key) {
-    unsigned int slot = hash(key);
-
-    // try to find a valid slot
-    Entry *entry = hashtable->entries[slot];
-
-    // no slot means no entry
-    if (entry == NULL) {
-        return;
-    }
-
-    // key found == delete
-    if (strcmp(entry->key, key) == 0) {
-        free(entry->key);
-        free(entry->value);
-        free(entry);
-        hashtable->entries[slot] = NULL;
-
-        return;
-    }
+    #if ERROR_PRINT == 1
+    printf("delete error - key not found\n");
+    #endif
 }
 
 void printHT(HashTable *hashtable) {
